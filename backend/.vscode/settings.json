@@ -1,0 +1,15 @@
+{
+    "material-icon-theme.activeIconPack": "nest",
+    "editor.formatOnSave": true, // Enables formatting on save
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    "prettier.requireConfig": true // Ensures Prettier runs only if a config is present
+  }
+  
