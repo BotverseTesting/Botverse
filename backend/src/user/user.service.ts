@@ -51,4 +51,31 @@ export class UserService {
       },
     });
   }
+  async updateUser(
+    id: number,
+    updateUserDto: {
+      email?: string;
+      password?: string;
+      name?: string;
+      role?: 'SUPERUSER' | 'ADMIN' | 'USER';
+      profilePicture?: string;
+    },
+  ): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!user) {
+      throw new Error(`User with id ${id} not found`);
+    }
+    return this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        ...updateUserDto,
+      },
+    });
+  }
 }
