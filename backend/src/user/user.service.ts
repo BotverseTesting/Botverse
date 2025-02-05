@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Security } from 'src/utils/security';
 
 @Injectable()
 export class UserService {
@@ -16,7 +17,7 @@ export class UserService {
     return this.prisma.user.create({
       data: {
         email: data.email,
-        password: data.password,
+        password: Security.hashPassword(data.password),
         name: data.name,
         role: data.role,
         profilePicture: data.profilePicture,
@@ -33,6 +34,11 @@ export class UserService {
       where: {
         id,
       },
+    });
+  }
+  async getUserByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { email: email },
     });
   }
   async deleteUser(id: number): Promise<void> {
@@ -68,6 +74,10 @@ export class UserService {
     });
     if (!user) {
       throw new Error(`User with id ${id} not found`);
+    }
+    if (updateUserDto.password) {
+      const hashedPassword = Security.hashPassword(updateUserDto.password);
+      updateUserDto.password = hashedPassword;
     }
     return this.prisma.user.update({
       where: {

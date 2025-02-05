@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from '@prisma/client';
@@ -32,6 +33,22 @@ export class UserController {
     return this.userService.createUser(createUserDto);
   }
 
+  @Get('by-email')
+  async getUserByEmail(@Query('email') email: string): Promise<User> {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    if (!Validations.isValidEmail(email)) {
+      throw new BadRequestException('Invalid email format');
+    }
+    const user = await this.userService.getUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
   @Get('all')
   async getUsers(): Promise<User[]> {
     return this.userService.getUsers();
@@ -44,6 +61,7 @@ export class UserController {
     }
     return user;
   }
+
   @Delete(':id')
   async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.userService.deleteUser(id);
@@ -54,7 +72,6 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
     @Body()
     updateUserDto: {
-      email?: string;
       password?: string;
       name?: string;
       role?: 'SUPERUSER' | 'ADMIN' | 'USER';
@@ -64,10 +81,6 @@ export class UserController {
     const userExists = await this.userService.getUserById(id);
     if (!userExists) {
       throw new NotFoundException(`User with id ${id} not found`);
-    }
-
-    if (updateUserDto.email && !Validations.isValidEmail(updateUserDto.email)) {
-      throw new BadRequestException('Invalid email format');
     }
     if (
       updateUserDto.role &&
