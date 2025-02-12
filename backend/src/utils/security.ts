@@ -9,14 +9,15 @@ export class Security {
       throw new Error('Error hashing password');
     }
   }
-  public static validatePassword(
+  public static async validatePassword(
     plainPassword: string,
     hashedPassword: string,
-  ): boolean {
+  ): Promise<boolean> {
     try {
-      return bcrypt.compareSync(plainPassword, hashedPassword);
-    } catch {
-      throw new Error('Error validating password');
+      return await bcrypt.compare(plainPassword, hashedPassword);
+    } catch (error) {
+      console.error('Error validating password:', error);
+      return false;
     }
   }
 }
