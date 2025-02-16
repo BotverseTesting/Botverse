@@ -6,7 +6,7 @@ import { GithubBotResponse } from 'src/dto/githubBotResponse';
 export class BotsController {
   constructor(private readonly botsService: BotsService) {}
 
-  @Get('marketplace')
+  @Get('github')
   async getGithubBots(): Promise<GithubBotResponse[]> {
     try {
       return await this.botsService.fetchGithubBots();

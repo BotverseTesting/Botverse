@@ -17,7 +17,7 @@ export class GithubBotResponse {
     this.resourcePath = data.resourcePath;
     this.appUrl = data.appUrl;
     this.fullDescription = data.fullDescription;
-    this.primaryCategoryName = data.primaryCategory?.name || 'Uncategorized';
+    this.primaryCategoryName = data.primaryCategory?.name ?? 'Uncategorized';
     this.logoUrl = data.logoUrl;
     this.isVerified = data.isVerified;
     this.isPublic = data.isPublic;
