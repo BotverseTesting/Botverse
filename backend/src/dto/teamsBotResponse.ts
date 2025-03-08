@@ -1,9 +1,9 @@
 export class TeamsBotResponse {
   title: string;
   link: string;
-  imgSrc: string | null; // Allow null
-  description: string | null; // Allow null
-  rating: string | null; // Allow null
+  imgSrc: string | null;
+  description: string | null;
+  rating: string | null;
 
   constructor(data: {
     title: string;

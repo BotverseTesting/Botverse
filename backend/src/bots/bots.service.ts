@@ -8,6 +8,7 @@ import {
 import { DiscordBotResponse } from 'src/dto/discordBotResponse';
 import * as puppeteer from 'puppeteer';
 import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
+import { SlackBotResponse } from 'src/dto/slackBotResponse';
 
 @Injectable()
 export class BotsService {
@@ -176,6 +177,45 @@ export class BotsService {
                 ?.textContent?.trim() || null,
           }),
         );
+      });
+    } finally {
+      await browser.close();
+    }
+  }
+  async scrapeSlackMarketplace(): Promise<SlackBotResponse[]> {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    try {
+      await page.goto(
+        'https://newworkspace-sca7607.slack.com/marketplace/category/At0EFRCDNY-developer-tools',
+      );
+      await page.waitForSelector('li.app_row.interactive', { timeout: 10000 });
+
+      return await page.evaluate(() => {
+        return Array.from(
+          document.querySelectorAll('li.app_row.interactive'),
+        ).map((tile) => ({
+          id: tile.getAttribute('data-app-id') || 'No ID',
+          nombre:
+            tile.querySelector('span.media_list_title')?.textContent?.trim() ||
+            'No title',
+          descripcion:
+            tile
+              .querySelector('span.media_list_subtitle')
+              ?.textContent?.trim() || 'No description',
+          enlace:
+            tile.querySelector('a.media_list_inner')?.getAttribute('href') ||
+            '#',
+          imagen:
+            tile.querySelector('img.icon_28')?.getAttribute('src') || null,
+          categoria:
+            tile.querySelector('div.app_category_tag')?.textContent?.trim() ||
+            'Sin categoría',
+          precio:
+            tile.querySelector('div.app_category_price')?.textContent?.trim() ||
+            'Gratis',
+        }));
       });
     } finally {
       await browser.close();

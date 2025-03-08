@@ -8,6 +8,7 @@ import {
 import { BotsService } from './bots.service';
 import { GithubBotResponse } from 'src/dto/githubBotResponse';
 import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
+import { SlackBotResponse } from 'src/dto/slackBotResponse';
 
 @Controller('bots')
 export class BotsController {
@@ -46,6 +47,17 @@ export class BotsController {
       console.error('Error scraping data:', error);
       throw new HttpException(
         `Error scraping Teams bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Get('slack')
+  async getMarketplaceApps(): Promise<SlackBotResponse[]> {
+    try {
+      return await this.botsService.scrapeSlackMarketplace();
+    } catch (error) {
+      throw new HttpException(
+        `Error scraping Slack marketplace: ${error}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
