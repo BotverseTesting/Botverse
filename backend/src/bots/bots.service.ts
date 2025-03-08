@@ -7,6 +7,7 @@ import {
 } from 'src/dto/githubBotResponse';
 import { DiscordBotResponse } from 'src/dto/discordBotResponse';
 import * as puppeteer from 'puppeteer';
+import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
 
 @Injectable()
 export class BotsService {
@@ -148,5 +149,36 @@ export class BotsService {
     }
 
     return allBots;
+  }
+  async scrapeTeamsData(): Promise<TeamsBotResponse[]> {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    try {
+      await page.goto(
+        'https://appsource.microsoft.com/es-es/marketplace/apps?search=bot&page=1&product=teams',
+      );
+      await page.waitForSelector('.tileContainer', { timeout: 10000 });
+
+      return await page.evaluate(() => {
+        return Array.from(document.querySelectorAll('.tileContainer')).map(
+          (tile) => ({
+            title: tile.getAttribute('title') || 'No title',
+            link: tile.getAttribute('href') || '#',
+            imgSrc: tile.querySelector('img')?.getAttribute('src') || null,
+            description:
+              tile
+                .querySelector('.multineEllipsis.description.mobileDescription')
+                ?.textContent?.trim() || null,
+            rating:
+              tile
+                .querySelector('.detailsRatingAvgNumOfStars')
+                ?.textContent?.trim() || null,
+          }),
+        );
+      });
+    } finally {
+      await browser.close();
+    }
   }
 }
