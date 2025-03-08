@@ -1,9 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
   HttpStatus,
-  Query,
+  Post,
 } from '@nestjs/common';
 import { BotsService } from './bots.service';
 import { GithubBotResponse } from 'src/dto/githubBotResponse';
@@ -25,13 +26,29 @@ export class BotsController {
       );
     }
   }
-  @Get('discord')
-  async searchBots(@Query('q') query: string): Promise<any> {
+  @Post('discord')
+  async searchDiscordBots(
+    @Body('query') query: string,
+    @Body('limit') limit: number = 500,
+  ): Promise<any> {
     try {
-      return await this.botsService.scrapeDiscordBots(query);
+      return await this.botsService.scrapeDiscordBots(query, limit); // Pasar el límite al servicio
     } catch (error) {
       throw new HttpException(
         `Error scraping Discord bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('github/save')
+  async saveGithubBots(): Promise<{ message: string }> {
+    try {
+      const bots = await this.botsService.fetchGithubBots(); // Obtiene los bots de GitHub
+      await this.botsService.saveGithubBots(bots); // Guarda los bots en la base de datos
+      return { message: 'Bots saved successfully' };
+    } catch (error) {
+      throw new HttpException(
+        `Error saving GitHub bots: ${(error as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

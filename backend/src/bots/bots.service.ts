@@ -8,6 +8,7 @@ import {
 import { DiscordBotResponse } from 'src/dto/discordBotResponse';
 import * as puppeteer from 'puppeteer';
 import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { SlackBotResponse } from 'src/dto/slackBotResponse';
 
 @Injectable()
@@ -15,7 +16,10 @@ export class BotsService {
   private readonly GITHUB_API_URL = process.env.GITHUB_API_URL;
   private readonly TOKEN = process.env.GITHUB_TOKEN;
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   async fetchGithubBots(): Promise<GithubBotResponse[]> {
     if (!this.GITHUB_API_URL) {
@@ -49,38 +53,79 @@ export class BotsService {
       );
     }
   }
-  async scrapeDiscordBots(searchQuery: string): Promise<DiscordBotResponse[]> {
-    const browser = await puppeteer.launch({
-      headless: false, // Modo visible para depuración
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-web-security',
-        '--disable-features=IsolateOrigins,site-per-process',
-      ],
-    });
+  async saveGithubBots(bots: GithubBotResponse[]): Promise<void> {
+    try {
+      for (const bot of bots) {
+        // Verificar si el bot ya existe en la base de datos por nombre y plataforma
+        const existingBot = await this.prisma.bot.findFirst({
+          where: {
+            name: bot.name,
+            sourcePlatform: 'github', // Verificar la plataforma
+          },
+        });
 
+        // Si el bot no existe, crearlo
+        if (!existingBot) {
+          await this.prisma.bot.create({
+            data: {
+              name: bot.name,
+              description: bot.fullDescription,
+              sourcePlatform: 'github', // Asignar la plataforma como 'github'
+              officialWebsite: bot.resourcePath,
+              documentationUrl: bot.documentationUrl || null,
+              categories: [bot.primaryCategoryName],
+              pricingInfo: {
+                isPaid: bot.isPaid,
+                pricingUrl: bot.pricingUrl || null,
+              },
+              images: {
+                create: {
+                  url: bot.logoUrl,
+                  type: 'logo',
+                },
+              },
+              technicalDetails: {
+                create: {
+                  resourcePath: bot.resourcePath,
+                  installationUrl: bot.installationUrl || null,
+                  isVerified: bot.isVerified,
+                  metadata: {
+                    isPublic: bot.isPublic,
+                  },
+                },
+              },
+              features: {
+                create: {
+                  title: 'General Features',
+                  description: bot.fullDescription,
+                  capabilities: [],
+                },
+              },
+            },
+          });
+        }
+      }
+    } catch (error) {
+      throw new HttpException(
+        `Error saving GitHub bots to database: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  async scrapeDiscordBots(
+    searchQuery: string,
+    limit: number = 100,
+  ): Promise<any> {
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
-
-    // Configuración avanzada de stealth
-    await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36',
-    );
-    await page.setViewport({ width: 1366, height: 768 });
-    await page.setJavaScriptEnabled(true);
-
     let allBots: DiscordBotResponse[] = [];
     let pageNumber = 1;
 
     try {
-      while (pageNumber <= 1) {
-        // Limitar páginas para pruebas
+      while (allBots.length < limit) {
         await page.goto(
           `https://discord.com/discovery/applications/search?q=${encodeURIComponent(searchQuery)}&page=${pageNumber}`,
-          {
-            waitUntil: 'networkidle2',
-            timeout: 60000,
-          },
+          { waitUntil: 'networkidle2', timeout: 60000 },
         );
 
         await page.waitForSelector('[class*="avatarContainer"] img', {
@@ -92,30 +137,40 @@ export class BotsService {
           timeout: 15000,
         });
 
+        console.log('Haciendo scroll automático...');
+        await page.evaluate(async () => {
+          await new Promise<void>((resolve) => {
+            let totalHeight = 0;
+            const distance = 100;
+            const timer = setInterval(() => {
+              const scrollHeight = document.body.scrollHeight;
+              window.scrollBy(0, distance);
+              totalHeight += distance;
+
+              if (totalHeight >= scrollHeight) {
+                clearInterval(timer);
+                resolve();
+              }
+            }, 100);
+          });
+        });
+
         const bots = await page.evaluate(() => {
           const cards = Array.from(
             document.querySelectorAll('[class*="container"]'),
           );
-
-          const getAttribute = (el: Element | null): string | null => {
-            if (!el) return null;
-            const src =
-              el.getAttribute('src') ||
-              el.getAttribute('data-src') ||
-              (el as HTMLElement).style.backgroundImage.match(
-                /url\(["']?(.*?)["']?\)/,
-              )?.[1];
-            return src ?? null;
-          };
-
           return cards.map((card) => ({
             name:
               card.querySelector('[class*="appName"]')?.textContent?.trim() ||
               'No name',
-            logo: getAttribute(
-              card.querySelector('[class*="avatarContainer"] img'),
-            ), // Logo del bot
-            banner: getAttribute(card.querySelector('[class*="bannerImage"]')), // Banner del bot
+            logo:
+              card
+                .querySelector('[class*="avatarContainer"] img')
+                ?.getAttribute('src') || null,
+            banner:
+              card
+                .querySelector('[class*="bannerImage"]')
+                ?.getAttribute('src') || null,
             category:
               card
                 .querySelector('[class*="appCategory"]')
@@ -128,28 +183,81 @@ export class BotsService {
           }));
         });
 
+        const filteredBots = bots
+          .filter((b) => b.name !== 'No name')
+          .map(
+            (bot) =>
+              new DiscordBotResponse({
+                ...bot,
+                logo: bot.logo ?? '',
+                image: bot.banner ?? '',
+              }),
+          );
+
         allBots = [
           ...allBots,
-          ...bots
-            .filter((b) => b.name !== 'No name')
-            .map(
-              (bot) =>
-                new DiscordBotResponse({
-                  ...bot,
-                  logo: bot.logo ?? '',
-                  image: bot.banner ?? '',
-                }),
-            ),
+          ...filteredBots.slice(0, limit - allBots.length),
         ];
+
+        if (allBots.length >= limit) break;
+
         pageNumber++;
       }
+
+      // Guardar los bots en la base de datos
+      await this.saveDiscordBotsToDatabase(allBots);
+      return allBots;
     } catch (error) {
-      console.error('Scraping error:', error);
+      throw new HttpException(
+        `Error scraping Discord bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     } finally {
       await browser.close();
     }
+  }
 
-    return allBots;
+  async saveDiscordBotsToDatabase(bots: DiscordBotResponse[]): Promise<void> {
+    try {
+      for (const bot of bots) {
+        // Verificar si el bot ya existe en la base de datos
+        const existingBot = await this.prisma.bot.findUnique({
+          where: { name: bot.name },
+        });
+
+        if (!existingBot) {
+          // Crear el bot en la base de datos
+          await this.prisma.bot.create({
+            data: {
+              name: bot.name,
+              description: bot.description,
+              sourcePlatform: 'discord',
+              categories: [bot.category],
+              images: {
+                create: [
+                  { url: bot.logo, type: 'logo' },
+                  { url: bot.image, type: 'banner' },
+                ],
+              },
+              features: {
+                create: {
+                  title: 'General Features',
+                  description: bot.description,
+                  capabilities: [],
+                },
+              },
+            },
+          });
+        } else {
+          console.log(`Bot "${bot.name}" already exists. Skipping creation.`);
+        }
+      }
+    } catch (error) {
+      throw new HttpException(
+        `Error saving Discord bots to database: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
   async scrapeTeamsData(): Promise<TeamsBotResponse[]> {
     const browser = await puppeteer.launch();
