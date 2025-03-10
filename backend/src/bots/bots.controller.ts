@@ -53,12 +53,13 @@ export class BotsController {
       );
     }
   }
-  @Get('teams')
-  async scrapeTeamsBots(): Promise<TeamsBotResponse[]> {
+  @Post('teams')
+  async scrapeTeamsBots(
+    @Body('limit') limit: number = 100, // Extraer el límite del body (valor por defecto: 100)
+  ): Promise<TeamsBotResponse[]> {
     try {
-      console.log('Scraping data...');
-      const bots: TeamsBotResponse[] = await this.botsService.scrapeTeamsData();
-      console.log('Data scraped successfully:', bots);
+      const bots: TeamsBotResponse[] =
+        await this.botsService.scrapeTeamsData(limit);
       return bots;
     } catch (error) {
       console.error('Error scraping data:', error);
@@ -75,6 +76,23 @@ export class BotsController {
     } catch (error) {
       throw new HttpException(
         `Error scraping Slack marketplace: ${error}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('slack')
+  async scrapeSlackBots(
+    @Body('limit') limit: number = 100,
+  ): Promise<SlackBotResponse[]> {
+    try {
+      const bots = await this.botsService.scrapeSlackMarketplace(limit);
+      for (const bot of bots) {
+        await this.botsService.saveSlackBotToDatabase(bot);
+      }
+      return bots;
+    } catch (error) {
+      throw new HttpException(
+        `Error scraping Slack bots: ${error}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
