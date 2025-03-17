@@ -1,0 +1,23 @@
+<div class="login-form-container">
+    <h2>Sign Up</h2>
+  
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <label for="email">Email</label>
+      <input type="email" id="email" formControlName="email" placeholder="Enter your email">
+  
+      <label for="password">Password</label>
+      <input type="password" id="password" formControlName="password" placeholder="Enter your password">
+  
+      <button type="submit" [disabled]="loginForm.invalid" class="login-btn">LOG IN</button>
+    </form>
+  
+    <div class="social-login">
+      <button class="google-btn">
+        <img src="/google.svg" alt="Google Icon"> LOG IN WITH
+      </button>
+      <button class="github-btn">
+        <img src="/github.svg" alt="GitHub Icon"> LOG IN WITH
+      </button>
+    </div>
+  </div>
+  
