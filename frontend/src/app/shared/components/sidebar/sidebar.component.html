@@ -1,0 +1,37 @@
+<div class="sidebar" [class.collapsed]="isCollapsed">
+    <button class="toggle-button" (click)="toggleSidebar()">☰</button>
+    <div class="sidebar-content" *ngIf="!isCollapsed">
+        <div class="scroll-container">
+            <div class="section">
+                <img src="upload.svg" class="icon" alt="Upload">
+                <span>UPLOAD BOTS</span>
+            </div>
+            <div class="section">
+                <img src="person.svg" class="icon" alt="Profile">
+                <span>PROFILE</span>
+            </div>
+            <div class="section">
+                <img src="share.svg" class="icon" alt="Workflows">
+                <span>WORKFLOWS</span>
+            </div>
+            <div class="section">
+                <img src="star_filled.svg" class="icon" alt="Favorites">
+                <span>FAVORITES</span>
+            </div>
+        </div>
+    </div>
+    <div class="collapsed-icons" *ngIf="isCollapsed">
+        <img src="upload.svg" class="icon" alt="Upload">
+        <img src="person.svg" class="icon" alt="Profile">
+        <img src="share.svg" class="icon" alt="Workflows">
+        <img src="star_filled.svg" class="icon" alt="Favorites">
+    </div>
+    
+    <!-- Bot Icons Section -->
+    <div class="bot-icons">
+        <img src="discord.svg" class="bot-icon" alt="Discord">
+        <img src="github.svg" class="bot-icon" alt="GitHub">
+        <img src="teams.svg" class="bot-icon" alt="Teams">
+        <img src="slack.svg" class="bot-icon" alt="Slack">
+    </div>
+</div>

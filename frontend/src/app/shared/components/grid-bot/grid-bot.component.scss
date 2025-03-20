@@ -1,0 +1,11 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Establece 2 columnas de igual tamaño */
+  gap: 16px; /* Ajusta el espacio entre las celdas */
+  padding: 16px; /* Ajusta el padding del contenedor */
+}
+
+.bot-card {
+  width: 100%; /* Asegura que cada carta ocupe todo el espacio disponible dentro de su celda */
+  max-width: 100%; /* Garantiza que la carta no se extienda más allá de su celda */
+}
