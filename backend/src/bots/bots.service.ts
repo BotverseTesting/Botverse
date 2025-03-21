@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import QueryUtil from 'src/utils/query';
@@ -10,6 +13,7 @@ import * as puppeteer from 'puppeteer';
 import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SlackBotResponse } from 'src/dto/slackBotResponse';
+import { Platform } from '@prisma/client';
 
 @Injectable()
 export class BotsService {
@@ -465,5 +469,237 @@ export class BotsService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getAll(sourcePlatform: string): Promise<any[]> {
+    try {
+      const bots = await this.prisma.bot.findMany({
+        where: {
+          sourcePlatform: sourcePlatform as Platform,
+        },
+      });
+
+      return bots;
+    } catch (error) {
+      throw new HttpException(
+        `Error fetching bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async scrapeAppDetails(officialWebsite: string): Promise<any> {
+    const url = `https://slack.com${officialWebsite}`;
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    );
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    await page.waitForSelector('div.p-content', { timeout: 10000 });
+
+    const data = await page.evaluate(() => {
+      const getText = (selector: string): string =>
+        document.querySelector(selector)?.textContent?.trim() || '';
+
+      const nombre = getText('h2');
+      const descripcion = getText('[data-qa="app_profile_desc"]');
+      const precio = getText('.app_category_price');
+
+      const imagenes = Array.from(
+        document.querySelectorAll(
+          '.p-app_directory_detail_carousel__image img',
+        ),
+      ).map((img) => (img as HTMLImageElement).src);
+
+      const permisos = Array.from(
+        document.querySelectorAll('#panel_settings .p-scope_info__group'),
+      ).map((group) => ({
+        categoria: group
+          .querySelector('.p-scope_info__group_heading')
+          ?.textContent?.trim(),
+        detalles: Array.from(group.querySelectorAll('li')).map((li) =>
+          li.textContent ? li.textContent.trim() : '',
+        ),
+      }));
+
+      const seguridad: Record<string, string> = {};
+      document
+        .querySelectorAll('#panel_security_compliance .p-app_sec_comp__name')
+        .forEach((el) => {
+          const key = el.textContent?.trim().replace(':', '') || '';
+          const value = el.nextElementSibling?.textContent?.trim() || '';
+          seguridad[key] = value;
+        });
+
+      const additionalInfo = document.querySelector(
+        '[data-automount-component="AppDirectoryAdditionalInfo"]',
+      );
+      let additionalData: Record<string, any> = {};
+      if (additionalInfo) {
+        try {
+          const props = JSON.parse(
+            additionalInfo
+              .getAttribute('data-automount-props')
+              ?.replace(/&quot;/g, '"') || '{}',
+          ) as {
+            supportedLanguages?: string[];
+            categories?: { name: string }[];
+            supportEmail?: string;
+            privacyPolicyLink?: string;
+          };
+          additionalData = {
+            idiomas: props.supportedLanguages || [],
+            categorias: props.categories?.map((c) => c.name) || [],
+            soporte: props.supportEmail,
+            politica_privacidad: props.privacyPolicyLink,
+          };
+        } catch {
+          // Handle error if needed
+        }
+      }
+
+      const enlaces = Array.from(document.querySelectorAll('a')).map(
+        (link) => ({
+          text: link.textContent?.trim() || '',
+          href: link.href,
+        }),
+      );
+
+      const developerWebsiteLink = enlaces.filter((link) =>
+        link.text.includes('Visitar el sitio web del desarrollador'),
+      );
+      const supportLink = enlaces.filter((link) =>
+        link.text.includes('Obtén ayuda de la aplicación'),
+      );
+
+      return {
+        nombre,
+        descripcion,
+        precio,
+        imagenes,
+        permisos,
+        seguridad,
+        ...additionalData,
+        developerWebsiteLink,
+        supportLink,
+      };
+    });
+
+    await browser.close();
+    return data;
+  }
+
+  async saveScrapedData(scrapedData: any) {
+    const {
+      nombre,
+      descripcion,
+      imagenes,
+      permisos,
+      seguridad,
+      categorias,
+      developerWebsiteLink,
+      supportLink,
+    } = scrapedData;
+
+    // Guardar el bot
+    const bot = await this.prisma.bot.create({
+      data: {
+        name: nombre,
+        description: descripcion,
+        sourcePlatform: 'slack', // Asumiendo que es para Slack
+        officialWebsite: developerWebsiteLink[0]?.href || '',
+        documentationUrl: supportLink[0]?.href || '',
+        categories: categorias,
+        pricingInfo: {}, // Aquí podrías añadir el precio si lo tienes
+        images: {
+          create: imagenes.map((url: string) => ({
+            url,
+            type: 'logo', // Asumiendo que todas son logos
+          })),
+        },
+        links: {
+          create: [
+            ...developerWebsiteLink.map((link: any) => ({
+              text: link.text,
+              url: link.href,
+              type: 'website',
+            })),
+            ...supportLink.map((link: any) => ({
+              text: link.text,
+              url: link.href,
+              type: 'support',
+            })),
+          ],
+        },
+        securityData: {
+          create: Object.entries(seguridad).map(([key, value]) => ({
+            key,
+            value: value as string,
+          })),
+        },
+        permissions: {
+          create: permisos.map((permiso: any) => ({
+            scope: permiso.categoria,
+            description: permiso.detalles.join(', '),
+          })),
+        },
+      },
+      include: {
+        images: true,
+        links: true,
+        securityData: true,
+        permissions: true,
+      },
+    });
+
+    return bot;
+  }
+  async scrapeBotDetails(botId) {
+    const browser = await puppeteer.launch({ headless: true });
+    const page = await browser.newPage();
+
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    );
+    await page.goto(`https://discord.com/discovery/applications/${botId}`, {
+      waitUntil: 'networkidle2',
+    });
+
+    await page.waitForSelector('.container__8a003', { timeout: 10000 });
+
+    const botDetails = await page.evaluate(() => {
+      const data: {
+        enlaces: { texto: string; enlace: string }[];
+        informacion?: { descripcion?: string };
+      } = { enlaces: [] };
+
+      // Extraer enlaces importantes
+      data.enlaces = [];
+      document.querySelectorAll('.linkItem__8a003').forEach((link) => {
+        const text = link
+          .querySelector('.listText__8a003')
+          ?.textContent?.trim();
+        const url = (link as HTMLAnchorElement).href;
+        if (text && url) data.enlaces.push({ texto: text, enlace: url });
+      });
+
+      // Extraer información general
+      const infoSection = document.querySelector('.infoSection_de3a16');
+      if (infoSection) {
+        data.informacion = {
+          descripcion: infoSection
+            .querySelector('.text-sm\\/medium_cf4812')
+            ?.textContent?.trim(),
+        };
+      }
+
+      return data;
+    });
+
+    await browser.close();
+    return botDetails;
   }
 }

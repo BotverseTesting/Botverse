@@ -4,7 +4,9 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
+  Query,
 } from '@nestjs/common';
 import { BotsService } from './bots.service';
 import { GithubBotResponse } from 'src/dto/githubBotResponse';
@@ -96,5 +98,52 @@ export class BotsController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Get()
+  async getBots(@Query('sourcePlatform') sourcePlatform: string) {
+    if (!sourcePlatform) {
+      throw new HttpException(
+        'sourcePlatform query parameter is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      const bots = await this.botsService.getAll(sourcePlatform);
+      return { bots };
+    } catch (error) {
+      throw new HttpException(
+        `Error fetching bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  @Get('scrape')
+  async scrapeAppDetails(
+    @Query('officialWebsite') officialWebsite: string,
+  ): Promise<any> {
+    if (!officialWebsite) {
+      throw new HttpException(
+        'officialWebsite query parameter is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const data = await this.botsService.scrapeAppDetails(officialWebsite);
+      return data;
+    } catch (error) {
+      throw new HttpException(
+        `Error scraping app details: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Get(':id')
+  async getBotDetails(@Param('id') botId: string): Promise<any> {
+    return this.botsService.scrapeBotDetails(botId);
   }
 }
