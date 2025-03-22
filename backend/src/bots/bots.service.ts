@@ -676,7 +676,6 @@ export class BotsService {
         informacion?: { descripcion?: string };
       } = { enlaces: [] };
 
-      // Extraer enlaces importantes
       data.enlaces = [];
       document.querySelectorAll('.linkItem__8a003').forEach((link) => {
         const text = link
@@ -685,8 +684,6 @@ export class BotsService {
         const url = (link as HTMLAnchorElement).href;
         if (text && url) data.enlaces.push({ texto: text, enlace: url });
       });
-
-      // Extraer información general
       const infoSection = document.querySelector('.infoSection_de3a16');
       if (infoSection) {
         data.informacion = {
@@ -701,5 +698,71 @@ export class BotsService {
 
     await browser.close();
     return botDetails;
+  }
+  async scrapeBotDetailsTeams(botId: string): Promise<any> {
+    const BASE_URL = 'https://appsource.microsoft.com/es-es/product/office';
+    const url = `${BASE_URL}/${botId}?tab=Overview`;
+    console.log(`Scraping URL: ${url}`);
+
+    const browser = await puppeteer.launch({ headless: false });
+    const page = await browser.newPage();
+
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 });
+
+      await page.waitForSelector('.tabContent', { timeout: 10000 });
+
+      const productDetails = await page.evaluate(() => {
+        const getText = (selector: string): string =>
+          document.querySelector(selector)?.textContent?.trim() ||
+          'No disponible';
+
+        const title = getText('.titleBlock .title');
+        const subtitle = getText('.titleBlock .subTitle');
+
+        const priceElement = document.querySelector(
+          '.pricingText .ms-fontSize-16',
+        );
+        const advertenciaElement = document.querySelector(
+          '.pricingText .ms-TooltipHost, .pricingText [class*="advertencia"]',
+        );
+
+        const textoPrecio = priceElement?.textContent?.trim() || '';
+        const esGratisBase = textoPrecio.includes('Gratis');
+        const tieneAdvertencia =
+          advertenciaElement?.textContent?.includes('compra adicional') ??
+          false;
+
+        const precio = esGratisBase && !tieneAdvertencia;
+
+        const description = getText('.appDetailContent .description');
+
+        const benefitsList = Array.from(
+          document.querySelectorAll('.appDetailContent .description p'),
+        ).map((item) => item.textContent?.trim() || '');
+
+        const capabilitiesTitle = getText('.capabilities .capabilitiesTitle');
+
+        const capabilitiesList = Array.from(
+          document.querySelectorAll('.capabilitiesList li'),
+        ).map((item) => item.textContent?.trim() || '');
+
+        return {
+          title,
+          subtitle,
+          precio,
+          description,
+          benefitsList,
+          capabilitiesTitle,
+          capabilitiesList,
+        };
+      });
+
+      return productDetails;
+    } catch (error) {
+      console.error('Error en scraping:', error);
+    } finally {
+      await browser.close();
+    }
   }
 }

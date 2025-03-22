@@ -142,8 +142,8 @@ export class BotsController {
       );
     }
   }
-  @Get(':id')
+  @Get('teams/:id')
   async getBotDetails(@Param('id') botId: string): Promise<any> {
-    return this.botsService.scrapeBotDetails(botId);
+    return this.botsService.scrapeBotDetailsTeams(botId);
   }
 }
