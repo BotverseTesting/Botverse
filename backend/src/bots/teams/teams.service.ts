@@ -169,4 +169,18 @@ export class TeamsService {
       await browser.close();
     }
   }
+  async updateBotDetailsTeams(): Promise<void> {
+    const teamsBots = await this.prisma.bot.findMany({
+      where: { sourcePlatform: 'teams' },
+    });
+    for (const bot of teamsBots) {
+      const match = bot.officialWebsite
+        ? bot.officialWebsite.match(/\/([A-Za-z]+\d+)(?=\?)/)
+        : null;
+      const botId = match ? match[1] : null;
+      if (botId) {
+        await this.scrapeBotDetailsTeams(botId);
+      }
+    }
+  }
 }

@@ -4,7 +4,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
@@ -14,7 +13,7 @@ import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
 export class TeamsController {
   constructor(private readonly teamsService: TeamsService) {}
 
-  @Post('')
+  @Post('teams')
   async scrapeTeamsBots(
     @Body('limit') limit: number = 100,
   ): Promise<TeamsBotResponse[]> {
@@ -30,8 +29,9 @@ export class TeamsController {
       );
     }
   }
-  @Get('/:id')
-  async getBotDetails(@Param('id') botId: string): Promise<any> {
-    return await this.teamsService.scrapeBotDetailsTeams(botId);
+
+  @Get('updateTeams')
+  async updateTeamsBots() {
+    return await this.teamsService.updateBotDetailsTeams();
   }
 }

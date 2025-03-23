@@ -150,7 +150,7 @@ export class DiscordService {
     }
   }
   async scrapeBotDetails(botId) {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({ headless: false });
     const page = await browser.newPage();
 
     await page.setUserAgent(
@@ -160,7 +160,7 @@ export class DiscordService {
       waitUntil: 'networkidle2',
     });
 
-    await page.waitForSelector('.container__8a003', { timeout: 10000 });
+    await page.waitForSelector('.container__8a003');
 
     const botDetails = await page.evaluate(() => {
       const data: {
@@ -190,5 +190,41 @@ export class DiscordService {
 
     await browser.close();
     return botDetails;
+  }
+  async updateBotDetails() {
+    const bots = await this.prisma.bot.findMany({
+      where: { sourcePlatform: 'discord' },
+    });
+
+    const botImages = await this.prisma.botImage.findMany({
+      where: { botId: { in: bots.map((bot) => bot.id) } },
+    });
+
+    const botIdMap = new Map();
+    for (const image of botImages) {
+      const match = image.url.match(
+        /https:\/\/cdn\.discordapp\.com\/app-icons\/(\d+)\//,
+      );
+      if (match) {
+        botIdMap.set(image.botId, match[1]);
+      }
+    }
+
+    for (const [dbBotId, discordBotId] of botIdMap.entries()) {
+      console.log(discordBotId);
+      const botDetails = await this.scrapeBotDetails(discordBotId);
+      const bot = bots.find((b) => b.id === dbBotId);
+      for (const link of botDetails.enlaces) {
+        if (bot) {
+          await this.prisma.botLink.create({
+            data: {
+              text: link.texto,
+              url: link.enlace,
+              botId: bot.id,
+            },
+          });
+        }
+      }
+    }
   }
 }

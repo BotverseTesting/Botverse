@@ -25,4 +25,15 @@ export class DiscordController {
       );
     }
   }
+  @Post('details')
+  async getDiscordBots(): Promise<any> {
+    try {
+      return await this.discordService.updateBotDetails();
+    } catch (error) {
+      throw new HttpException(
+        `Error getting Discord bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 }

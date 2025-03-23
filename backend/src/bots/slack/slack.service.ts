@@ -114,7 +114,7 @@ export class SlackService {
       );
     }
   }
-  async scrapeAppDetails(officialWebsite: string): Promise<any> {
+  async scrapeSlackDetails(officialWebsite: string): Promise<any> {
     const url = `https://slack.com${officialWebsite}`;
     const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
@@ -219,5 +219,19 @@ export class SlackService {
 
     await browser.close();
     return data;
+  }
+
+  async updateSlackBotDetails(): Promise<void> {
+    const slackBots = await this.prisma.bot.findMany({
+      where: { sourcePlatform: 'slack' },
+    });
+    const officialWebsites = slackBots.map((bot) => bot.officialWebsite);
+    for (const officialWebsite of officialWebsites) {
+      if (officialWebsite) {
+        // const data = await this.scrapeSlackDetails(officialWebsite);
+      } else {
+        console.warn('Official website URL is null, skipping.');
+      }
+    }
   }
 }

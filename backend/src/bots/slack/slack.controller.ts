@@ -5,7 +5,6 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  Query,
 } from '@nestjs/common';
 import { SlackService } from './slack.service';
 import { SlackBotResponse } from 'src/dto/slackBotResponse';
@@ -43,9 +42,7 @@ export class SlackController {
     }
   }
   @Get('scrape')
-  async scrapeAppDetails(
-    @Query('officialWebsite') officialWebsite: string,
-  ): Promise<any> {
+  async scrapeAppDetails(officialWebsite: string): Promise<any> {
     if (!officialWebsite) {
       throw new HttpException(
         'officialWebsite query parameter is required',
@@ -55,11 +52,22 @@ export class SlackController {
 
     try {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-      const data = await this.slackService.scrapeAppDetails(officialWebsite);
+      const data = await this.slackService.scrapeSlackDetails(officialWebsite);
       return data;
     } catch (error) {
       throw new HttpException(
         `Error scraping app details: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Post('updateSlackBots')
+  async updateSlackBots(): Promise<void> {
+    try {
+      await this.slackService.updateSlackBotDetails();
+    } catch (error) {
+      throw new HttpException(
+        `Error updating Slack bots: ${error}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
