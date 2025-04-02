@@ -179,7 +179,16 @@ export class TeamsService {
         : null;
       const botId = match ? match[1] : null;
       if (botId) {
-        await this.scrapeBotDetailsTeams(botId);
+        const data = (await this.scrapeBotDetailsTeams(botId)) as {
+          title: string;
+          subtitle: string;
+          precio: number;
+          description: string;
+          benefitsList: string[];
+          capabilitiesTitle: string;
+          capabilitiesList: string[];
+        };
+        console.log(data);
       }
     }
   }

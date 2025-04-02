@@ -228,7 +228,18 @@ export class SlackService {
     const officialWebsites = slackBots.map((bot) => bot.officialWebsite);
     for (const officialWebsite of officialWebsites) {
       if (officialWebsite) {
-        // const data = await this.scrapeSlackDetails(officialWebsite);
+        const data = (await this.scrapeSlackDetails(officialWebsite)) as {
+          nombre: string;
+          descripcion: string;
+          precio: number;
+          imagenes: string[];
+          permisos: string[];
+          seguridad: string[];
+          additionalData?: Record<string, unknown>;
+          developerWebsiteLink?: string;
+          supportLink?: string;
+        };
+        console.log(data);
       } else {
         console.warn('Official website URL is null, skipping.');
       }
