@@ -1,37 +1,41 @@
-<div class="sidebar" [class.collapsed]="isCollapsed">
-    <button class="toggle-button" (click)="toggleSidebar()">☰</button>
-    <div class="sidebar-content" *ngIf="!isCollapsed">
-        <div class="scroll-container">
-            <div class="section">
-                <img src="upload.svg" class="icon" alt="Upload">
-                <span>UPLOAD BOTS</span>
-            </div>
-            <div class="section">
-                <img src="person.svg" class="icon" alt="Profile">
-                <span>PROFILE</span>
-            </div>
-            <div class="section">
-                <img src="share.svg" class="icon" alt="Workflows">
-                <span>WORKFLOWS</span>
-            </div>
-            <div class="section">
-                <img src="star_filled.svg" class="icon" alt="Favorites">
-                <span>FAVORITES</span>
-            </div>
+<div class="sidenav" [class.expanded]="!isCollapsed">
+    <div class="logo-container">
+        <button class="logo" (click)="toggleSidebar()">
+            <img src="list.svg" alt="Menu" [class.rotated]="!isCollapsed">
+        </button>
+    </div>
+    <div class="sidebar-expandable">
+        <div class="expandable-content">
+            <ng-content select="[sidebar-content]"></ng-content>
         </div>
     </div>
-    <div class="collapsed-icons" *ngIf="isCollapsed">
-        <img src="upload.svg" class="icon" alt="Upload">
-        <img src="person.svg" class="icon" alt="Profile">
-        <img src="share.svg" class="icon" alt="Workflows">
-        <img src="star_filled.svg" class="icon" alt="Favorites">
-    </div>
-    
-    <!-- Bot Icons Section -->
-    <div class="bot-icons">
-        <img src="discord.svg" class="bot-icon" alt="Discord">
-        <img src="github.svg" class="bot-icon" alt="GitHub">
-        <img src="teams.svg" class="bot-icon" alt="Teams">
-        <img src="slack.svg" class="bot-icon" alt="Slack">
-    </div>
+    <ul class="sidenav-nav">
+        <!-- Versión contraída -->
+        <li class="sidenav-discord" *ngIf="isCollapsed">
+            <img src="discord.svg" alt="Discord">
+        </li>
+        <li class="sidenav-item" *ngIf="isCollapsed">
+            <img src="github.svg" alt="GitHub">
+        </li>
+        <li class="sidenav-item" *ngIf="isCollapsed">
+            <img src="slack.svg" alt="Slack">
+        </li>
+        <li class="sidenav-item" *ngIf="isCollapsed">
+            <img src="teams.svg" alt="Teams">
+        </li>
+
+        <!-- Versión expandida -->
+        <li class="sidenav-item" *ngIf="!isCollapsed">
+            <img src="person.svg" alt="Personas">
+        </li>
+        <li class="sidenav-item" *ngIf="!isCollapsed">
+            <img src="share.svg" alt="Compartir">
+        </li>
+        <li class="sidenav-item" *ngIf="!isCollapsed">
+            <img src="star_filled.svg" alt="Favoritos">
+        </li>
+        <li class="sidenav-item" *ngIf="!isCollapsed">
+            <img src="upload.svg" alt="Compartidos">
+        </li>
+    </ul>
 </div>

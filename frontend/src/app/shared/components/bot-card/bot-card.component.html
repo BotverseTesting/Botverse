@@ -1,26 +1,37 @@
-<div class="card">
+<div
+  class="bot-card"
+  *ngIf="card"
+  [class.selected]="selected"
+  (click)="onCardClick()"
+>
   <div class="card-content">
     <div class="card-header">
-      <div class="logo-container">
-        <img src="" alt="Logo" class="logo" />
+      <div class="avatar">
+        {{ card.header.charAt(0) }}
       </div>
-      
-      <div class="text-content">
-        <h2 class="title">Example Company</h2>
-        
-        <div class="tags">
-          <span class="tag" [ngClass]="getTagClass('Tech')">Tech</span>
-          <span class="tag" [ngClass]="getTagClass('Startup')">Startup</span>
-        </div>
+      <div class="header-text">
+        <h3>{{ card.header }}</h3>
+        <span class="category">{{ card.category }}</span>
       </div>
+      <button 
+        class="favorite-button"
+        (click)="toggleFavorite($event)"
+        [class.favorited]="card.isFavorite"
+      >
+        ★
+      </button>
     </div>
 
-    <div class="banner-container">
-      <img src="" alt="Banner" class="banner" />
+    <div class="labels-container" *ngIf="card.labels?.length">
+      <span class="label" *ngFor="let label of card.labels">
+        {{ label }}
+      </span>
     </div>
-  </div>
 
-  <div class="description">
-    Example description of a company. This is a placeholder text to simulate the content.
+    <div class="platform-icons">
+      <div class="icon">📊</div>
+      <div class="icon">🔗</div>
+      <div class="icon">⚙️</div>
+    </div>
   </div>
 </div>

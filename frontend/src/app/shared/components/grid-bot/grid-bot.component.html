@@ -1,13 +1,10 @@
 <div class="grid-container">
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
-    <app-bot-card></app-bot-card>
+    <bot-card
+      *ngFor="let bot of bots"
+      [card]="bot"
+      [selected]="selectedBotId === bot.id"
+      (select)="selectBot(bot.id)"
+      (toggleFavoriteEvent)="toggleFavorite(bot.id)"
+    ></bot-card>
   </div>
   

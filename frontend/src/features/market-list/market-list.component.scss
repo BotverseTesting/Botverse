@@ -1,37 +1,5 @@
-.main-container {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Para que las tarjetas no se desborden verticalmente */
-    flex-wrap: wrap;
-    height: 100vh;
-    gap: 20px; /* Espacio adicional entre los elementos */
-  }
-  
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columnas */
-    grid-template-rows: repeat(5, auto); /* 5 filas, ajustadas al contenido */
-    gap: 20px; /* Espacio entre las tarjetas */
-    width: 80%; /* Ajusta el ancho al 80% de la pantalla */
-    max-width: 1200px; /* Máximo de 1200px de ancho */
-  }
-  
-  app-bot-card {
-    width: 100%;
-    height: auto; /* Ajusta la altura de las tarjetas según el contenido */
-    margin: 0; /* Elimina cualquier margen adicional */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    border-radius: 12px; /* Esquinas redondeadas */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-    background-color: #ffffff; /* Fondo blanco para las tarjetas */
-  }
-  
-  /* Si deseas que las tarjetas tengan un tamaño específico, también puedes ajustar el tamaño con un máximo o mínimo */
-  app-bot-card {
-    min-height: 150px; /* Altura mínima */
-    max-height: 300px; /* Altura máxima */
+:host {
+    display: block;
+    background-color: #f5f5f5;  // Aquí pones el color que desees
   }
   

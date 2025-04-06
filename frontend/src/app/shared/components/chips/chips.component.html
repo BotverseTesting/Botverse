@@ -1,1 +1,5 @@
-<div style="width: 129px; height: 45px; background: #DECF9B; border-radius: 21px"></div>
+<div class="chips-container">
+    <div class="chip" *ngFor="let chip of chips" [style.background-color]="chip.color">
+      {{chip.text}}
+    </div>
+  </div>

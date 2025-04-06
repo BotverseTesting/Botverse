@@ -10,5 +10,5 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./search-bar.component.scss']
 })
 export class SearchBarComponent {
- 
+  searchQuery: string = '';
 }

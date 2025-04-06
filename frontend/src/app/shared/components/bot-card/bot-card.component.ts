@@ -1,38 +1,38 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+export interface BotCard {
+  id: number;
+  header: string;
+  category: string;
+  labels?: string[];
+  isFavorite?: boolean;
+}
 
 @Component({
-  selector: 'app-bot-card',
-  templateUrl: './bot-card.component.html',  // Corregido templateUrl -> templateUrls
-  styleUrls: ['./bot-card.component.scss'],  // Corregido styleUrl -> styleUrls
-  imports: [
-    CommonModule,BotCardComponent
-  ]
+  selector: 'bot-card',
+  templateUrl: './bot-card.component.html',
+  styleUrls: ['./bot-card.component.scss'],
+  standalone: true,
+  imports: [CommonModule],
 })
 export class BotCardComponent {
-  // Datos de ejemplo
-  data = {
-    name: 'Example Company',
-    logoUrl: 'https://via.placeholder.com/150', // URL de la imagen de ejemplo para el logo
-    bannerUrl: 'https://via.placeholder.com/600x200', // URL de la imagen de ejemplo para el banner
-    tags: ['Tech', 'Startup'],
-    description: 'Example description of a company. This is a placeholder text to simulate the content.'
-  };
+  @Input() card!: BotCard;
+  @Input() selected: boolean = false;
 
-  // Método para gestionar el error en la carga de las imágenes
-  handleImageError(event: any): void {
-    event.target.src = 'https://via.placeholder.com/150'; // Imagen por defecto si la carga falla
+  @Output() select = new EventEmitter<number>();
+  @Output() toggleFavoriteEvent = new EventEmitter<number>();
+
+  onCardClick(): void {
+    if (this.card) {
+      this.select.emit(this.card.id);
+    }
   }
 
-  // Método para obtener la clase del tag según el tipo
-  getTagClass(tag: string): string {
-    switch (tag) {
-      case 'Tech':
-        return 'bg-blue-200 text-blue-800';
-      case 'Startup':
-        return 'bg-green-200 text-green-800';
-      default:
-        return 'bg-gray-200 text-gray-800';
+  toggleFavorite(event: Event): void {
+    event.stopPropagation();
+    if (this.card) {
+      this.toggleFavoriteEvent.emit(this.card.id);
     }
   }
 }
