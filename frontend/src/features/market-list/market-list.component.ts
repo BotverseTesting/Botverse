@@ -10,7 +10,7 @@ import { GridBotComponent } from "../../app/shared/components/grid-bot/grid-bot.
   selector: 'market-list',
   templateUrl: './market-list.component.html',
   styleUrls: ['./market-list.component.scss'],
-  imports: [SearchBarComponent, CommonModule, BotCardComponent, SidebarComponent, ChipsComponent, GridBotComponent],
+  imports: [SearchBarComponent, CommonModule, SidebarComponent, ChipsComponent, GridBotComponent],
 })
 export class MarketListComponent {
   

@@ -4,32 +4,36 @@
   left: 0;
   top: 150px;
   height: calc(100vh - 130px);
-  background-color: #f5f5f5;
+  background-color: #f5f5f5; /* Color de fondo suave */
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 0;
+  padding: 20px 0;
   box-sizing: border-box;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, background-color 0.3s ease;
   z-index: 100;
   overflow: hidden;
+  border-right: 1px solid #e0e0e0; /* Agregar borde derecho sutil */
+
+  &:hover {
+    background-color: #e0e0e0; /* Cambio sutil al pasar el mouse */
+  }
 
   &.expanded {
     width: 240px;
 
     .sidebar-expandable {
-      width: 160px;
+      width: 300px;
       opacity: 1;
       pointer-events: none;
     }
   }
 
   .logo-container {
-
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-bottom: 24px;
+    margin-bottom: 32px; /* Espacio aumentado para mayor respiro */
     position: relative;
     z-index: 2;
 
@@ -43,12 +47,18 @@
       align-items: center;
       justify-content: center;
       padding: 0;
+      transition: transform 0.2s ease; /* Efecto de transformación suave */
       
       img {
         width: 50px;
         height: 50px;
         opacity: 0.9;
-        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.2s ease;
+
+        &:hover {
+          opacity: 1;
+          transform: rotate(360deg); /* Añadir rotación al logo */
+        }
 
         &.rotated {
           transform: rotate(90deg);
@@ -58,9 +68,8 @@
   }
 
   .sidebar-expandable {
-    
     position: absolute;
-    left: 80px;
+    left: 0px;
     top: 0;
     width: 0;
     height: 100%;
@@ -77,7 +86,6 @@
   }
 
   .sidenav-nav {
-    /* Estilos igual que antes */
     list-style: none;
     padding: 0;
     margin: 0;
@@ -85,7 +93,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 16px; /* Aumento en el espacio entre los elementos */
     position: relative;
     z-index: 1;
 
@@ -93,16 +101,17 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-bottom: 40px;
+      margin-bottom: 30px; /* Espaciado adecuado para íconos */
 
       img {
         width: 50px;
         height: 50px;
         opacity: 0.7;
-        transition: opacity 0.15s ease;
+        transition: opacity 0.3s ease, transform 0.3s ease;
 
         &:hover {
           opacity: 1;
+          transform: translateY(-5px); /* Efecto de elevación */
         }
       }
     }
@@ -111,16 +120,17 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-bottom: 40px;
+      margin-bottom: 30px;
 
       img {
         width: 60px;
         height: 60px;
         opacity: 0.7;
-        transition: opacity 0.15s ease;
+        transition: opacity 0.3s ease, transform 0.3s ease;
 
         &:hover {
           opacity: 1;
+          transform: translateY(-5px); /* Efecto de elevación para Discord */
         }
       }
     }

@@ -13,6 +13,6 @@ export class ChipsComponent {
     { text: 'Diseño', color: '#E9B0CA' },
     { text: 'Desarrollo', color: '#9BDEC6' },
     { text: 'Testing', color: '#9BCDDE' },
-    { text: 'Despliegue', color: '#DECF9B' }
+   
   ];
 }
