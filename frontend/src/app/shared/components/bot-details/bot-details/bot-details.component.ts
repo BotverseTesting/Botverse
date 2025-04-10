@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
-import { ChipsComponent } from "../../chips/chips.component";
+
+import { SearchBarComponent } from "../../search-bar/search-bar.component";
 
 @Component({
   selector: 'app-bot-details',
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule, SidebarComponent, SearchBarComponent],
   templateUrl: './bot-details.component.html',
   styleUrl: './bot-details.component.scss'
 })
