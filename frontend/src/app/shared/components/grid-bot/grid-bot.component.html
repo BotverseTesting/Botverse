@@ -1,0 +1,10 @@
+<div class="grid-container">
+    <bot-card
+      *ngFor="let bot of bots"
+      [card]="bot"
+      [selected]="selectedBotId === bot.id"
+      (select)="selectBot(bot.id)"
+      (toggleFavoriteEvent)="toggleFavorite(bot.id)"
+    ></bot-card>
+  </div>
+  
