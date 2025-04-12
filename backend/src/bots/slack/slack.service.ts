@@ -239,7 +239,18 @@ export class SlackService {
           developerWebsiteLink?: string;
           supportLink?: string;
         };
-        console.log(data);
+        const bot = await this.prisma.bot.findUnique({
+          where: { name: data.nombre },
+        });
+        if (bot) {
+          await this.prisma.botImage.create({
+            data: {
+              url: data.imagenes[0] || '',
+              type: 'logo',
+              botId: bot.id,
+            },
+          });
+        }
       } else {
         console.warn('Official website URL is null, skipping.');
       }

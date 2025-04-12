@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Query,
 } from '@nestjs/common';
 import { SlackService } from './slack.service';
 import { SlackBotResponse } from 'src/dto/slackBotResponse';
@@ -42,7 +43,9 @@ export class SlackController {
     }
   }
   @Get('scrape')
-  async scrapeAppDetails(officialWebsite: string): Promise<any> {
+  async scrapeAppDetails(
+    @Query('officialWebsite') officialWebsite: string,
+  ): Promise<any> {
     if (!officialWebsite) {
       throw new HttpException(
         'officialWebsite query parameter is required',

@@ -44,7 +44,6 @@ export class TeamsService {
 
         allBots = [...allBots, ...bots.slice(0, limit - allBots.length)];
 
-        // Guardar cada bot en la base de datos
         for (const bot of bots) {
           await this.saveTeamsBotToDatabase(bot);
         }
