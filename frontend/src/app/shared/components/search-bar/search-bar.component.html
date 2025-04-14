@@ -1,13 +1,14 @@
 <div class="search-container">
-    <div class="search-wrapper">
-      <input 
-        type="text" 
-        class="search-input" 
-        placeholder="Buscar..." 
-        [(ngModel)]="searchQuery"
-      >
-      <button class="search-button">
-        <img src="search.svg" alt="Buscar" class="search-icon">
-      </button>
-    </div>
+  <div class="search-wrapper">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Buscar..." 
+      [(ngModel)]="searchQuery"
+      (input)="onSearchInput()"
+    >
+    <button class="search-button">
+      <img src="search.svg" alt="Buscar" class="search-icon">
+    </button>
   </div>
+</div>

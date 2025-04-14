@@ -4,10 +4,13 @@
   [class.selected]="selected"
   (click)="onCardClick()"
 >
-  <div class="card-content">
+<div class="card-content" [routerLink]="['/bots', card.id]">
     <div class="card-header">
       <div class="avatar">
-        {{ card.header.charAt(0) }}
+        <img *ngIf="card.images" 
+        [src]="card.images" 
+        alt="{{ card.header }} logo"
+        (error)="card.images = ''">
       </div>
       <div class="header-text">
         <h3>{{ card.header }}</h3>

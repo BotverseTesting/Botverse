@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 export interface BotCard {
   id: number;
   header: string;
+  images: string;
   category: string;
   labels?: string[];
   isFavorite?: boolean;
@@ -14,7 +16,7 @@ export interface BotCard {
   templateUrl: './bot-card.component.html',
   styleUrls: ['./bot-card.component.scss'],
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
 })
 export class BotCardComponent {
   @Input() card!: BotCard;

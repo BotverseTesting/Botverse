@@ -1,6 +1,21 @@
-<div class = "market-list">
-    <app-grid-bot></app-grid-bot>
+<div class="market-layout">
+  <app-sidebar 
+    [activePlatform]="currentPlatform"
+    (platformSelected)="handlePlatformSelected($event)">
+  </app-sidebar>
+
+  <div class="market-content">
+    <!-- Search Bar con output -->
+    <app-search-bar 
+      (searchChange)="handleSearchChange($event)">
+    </app-search-bar>
+    
     <app-chips></app-chips>
-    <app-sidebar></app-sidebar>
-    <app-search-bar></app-search-bar>
+    
+    <!-- Grid con ambos filtros -->
+    <app-grid-bot 
+      [filterPlatform]="currentPlatform"
+      [searchQuery]="searchQuery">
+    </app-grid-bot>
+  </div>
 </div>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -11,4 +11,9 @@ import { FormsModule } from '@angular/forms';
 })
 export class SearchBarComponent {
   searchQuery: string = '';
+  @Output() searchChange = new EventEmitter<string>();
+
+  onSearchInput() {
+    this.searchChange.emit(this.searchQuery);
+  }
 }

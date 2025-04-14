@@ -10,7 +10,7 @@ export const routes: Routes = [
     { path: 'auth/login', component: LoginComponent },
     { path: 'auth/register', component: RegisterComponent }, 
     { path: 'bots', component: MarketListComponent } ,
-    { path: 'bots/details', component: BotDetailsComponent } ,
+    { path: 'bots/:id', component: BotDetailsComponent } ,
     
 ]; 
 
