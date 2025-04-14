@@ -79,7 +79,6 @@ export class BotDetailsComponent implements OnInit {
       next: ({ data }) => {
         this.bot = data.bot;
         this.isLoading = false;
-        console.log(this.bot);
       },
      
     });
