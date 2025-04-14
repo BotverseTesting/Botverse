@@ -48,7 +48,6 @@ model Bot {
   
   images           BotImage[]
   links            BotLink[]
-  securityData     SecurityCompliance[]
   permissions      BotPermission[]
   technicalDetails TechnicalDetails?
   features         Feature[]
@@ -71,13 +70,6 @@ model BotLink {
   botId   String
 }
 
-model SecurityCompliance {
-  id     Int    @id @default(autoincrement())
-  key    String
-  value  String
-  bot    Bot    @relation(fields: [botId], references: [id])
-  botId  String
-}
 
 model BotPermission {
   id          Int    @id @default(autoincrement())
@@ -105,4 +97,26 @@ model Feature {
   capabilities String[]
   bot         Bot      @relation(fields: [botId], references: [id])
   botId       String
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique 
+  password  String   
+  name  String
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @updatedAt 
+  role      Role    
+  profilePicture String?
+}
+
+enum Role {
+  SUPERUSER
+  ADMIN
+  USER
+}
+
+generator nestgraphql {
+  provider = "prisma-nestjs-graphql"
+  output   = "../src/@generated/prisma-graphql"
 }

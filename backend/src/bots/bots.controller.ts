@@ -1,5 +1,6 @@
 import {
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -22,6 +23,25 @@ export class BotsController {
 
     try {
       const bots = await this.botsService.getAll(sourcePlatform);
+      return { bots };
+    } catch (error) {
+      throw new HttpException(
+        `Error fetching bots: ${(error as Error).message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+  @Delete()
+  async deleteBots(@Query('sourcePlatform') sourcePlatform: string) {
+    if (!sourcePlatform) {
+      throw new HttpException(
+        'sourcePlatform query parameter is required',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    try {
+      const bots = await this.botsService.deleteByCategory(sourcePlatform);
       return { bots };
     } catch (error) {
       throw new HttpException(

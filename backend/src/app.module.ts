@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BotsModule } from './bots/bots.module';
@@ -6,7 +8,17 @@ import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [BotsModule, BotsModule, PrismaModule],
+  imports: [
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: true,
+      playground: true,
+      context: ({ req }: { req: Request }) => ({ req }),
+    }),
+
+    BotsModule,
+    PrismaModule,
+  ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })

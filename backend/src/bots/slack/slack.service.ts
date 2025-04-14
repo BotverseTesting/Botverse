@@ -197,13 +197,20 @@ export class SlackService {
         }),
       );
 
-      const developerWebsiteLink = enlaces.filter((link) =>
-        link.text.includes('Visitar el sitio web del desarrollador'),
-      );
+      const developerWebsiteLink = enlaces
+        .filter((link) =>
+          link.text.includes('Visitar el sitio web del desarrollador'),
+        )
+        .map((link) => link.href)[0];
+
       const supportLink = enlaces.filter((link) =>
         link.text.includes('Obtén ayuda de la aplicación'),
       );
-
+      const categories: string[] | null = Array.isArray(
+        additionalData['categorias'],
+      )
+        ? additionalData['categorias']
+        : null;
       return {
         nombre,
         descripcion,
@@ -214,6 +221,7 @@ export class SlackService {
         ...additionalData,
         developerWebsiteLink,
         supportLink,
+        categories,
       };
     });
 
@@ -238,7 +246,9 @@ export class SlackService {
           additionalData?: Record<string, unknown>;
           developerWebsiteLink?: string;
           supportLink?: string;
+          categories?: string[];
         };
+
         const bot = await this.prisma.bot.findUnique({
           where: { name: data.nombre },
         });
@@ -246,10 +256,18 @@ export class SlackService {
           await this.prisma.botImage.create({
             data: {
               url: data.imagenes[0] || '',
-              type: 'logo',
+              type: 'banner',
               botId: bot.id,
             },
           });
+          await this.prisma.bot.update({
+            where: { id: bot.id },
+            data: {
+              categories: data.categories,
+              documentationUrl: data.developerWebsiteLink,
+            },
+          });
+          console.log('Updating ' + bot.name);
         }
       } else {
         console.warn('Official website URL is null, skipping.');

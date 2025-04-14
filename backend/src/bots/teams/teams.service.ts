@@ -67,7 +67,7 @@ export class TeamsService {
   async saveTeamsBotToDatabase(bot: TeamsBotResponse): Promise<void> {
     try {
       const existingBot = await this.prisma.bot.findUnique({
-        where: { name: bot.title }, // Usar el título como nombre único
+        where: { name: bot.title },
       });
 
       if (!existingBot) {
@@ -181,13 +181,20 @@ export class TeamsService {
         const data = (await this.scrapeBotDetailsTeams(botId)) as {
           title: string;
           subtitle: string;
-          precio: number;
+          precio: string;
           description: string;
           benefitsList: string[];
           capabilitiesTitle: string;
           capabilitiesList: string[];
         };
-        console.log(data);
+        await this.prisma.bot.update({
+          where: { id: bot.id },
+          data: {
+            categories: data.capabilitiesList,
+            pricingInfo: data.precio,
+          },
+        });
+        console.log(`Bot "${bot.name}" updated successfully.`);
       }
     }
   }

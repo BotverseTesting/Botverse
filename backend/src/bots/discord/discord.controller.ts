@@ -17,7 +17,7 @@ export class DiscordController {
     @Body('limit') limit: number = 500,
   ): Promise<any> {
     try {
-      return await this.discordService.scrapeDiscordBots(query, limit); // Pasar el límite al servicio
+      return await this.discordService.scrapeDiscordBots(query, limit);
     } catch (error) {
       throw new HttpException(
         `Error scraping Discord bots: ${(error as Error).message}`,
