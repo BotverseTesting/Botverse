@@ -1,5 +1,10 @@
-
+<!-- login.component.html -->
+<div class="login-container">
       <app-side-image></app-side-image>
-      <app-login-form></app-login-form>
-
-    
+      <app-login-form 
+        (loginSubmit)="handleLogin($event)"
+      ></app-login-form>
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+    </div>

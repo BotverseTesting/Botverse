@@ -1,13 +1,35 @@
-import { Component } from '@angular/core';
+// register-form.component.ts
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register-form',
-  imports: [],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './register-form.component.html',
-  styleUrl: './register-form.component.scss'
+  styleUrls: ['./register-form.component.scss']
 })
 export class RegisterFormComponent {
- onSubmit() {
-    console.log('Form submitted');
+  registerForm: FormGroup;
+  @Output() registerSubmit = new EventEmitter<{
+    name: string;
+    email: string;
+    password: string;
+  }>();
+  @Input() registerError: string | null = null;
+
+  constructor(private fb: FormBuilder) {
+    this.registerForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
+
+  onSubmit() {
+    if (this.registerForm.valid) {
+      this.registerSubmit.emit(this.registerForm.value);
+    }
   }
 }

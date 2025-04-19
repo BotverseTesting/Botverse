@@ -1,2 +1,7 @@
-<app-register-form></app-register-form>
-<app-side-image></app-side-image>
+<div class="register-page">
+    <app-register-form 
+      (registerSubmit)="handleRegister($event)"
+      [registerError]="registerError"
+    ></app-register-form>
+    <app-side-image></app-side-image>
+  </div>
