@@ -16,6 +16,7 @@ export class GithubService {
     private readonly httpService: HttpService,
     private readonly prisma: PrismaService,
   ) {}
+
   async fetchGithubBots(): Promise<GithubBotResponse[]> {
     if (!this.GITHUB_API_URL) {
       throw new HttpException(
@@ -24,23 +25,50 @@ export class GithubService {
       );
     }
 
-    try {
-      const response = await this.httpService.axiosRef.post<{
-        data: { marketplaceListings: { nodes: GithubAPIResponse[] } };
-      }>(
-        this.GITHUB_API_URL,
-        { query: QueryUtil.queryGithub },
-        {
-          headers: {
-            Authorization: `Bearer ${this.TOKEN}`,
-            'Content-Type': 'application/json',
-            'User-Agent': 'Node.js',
-          },
-        },
-      );
+    const allBots: GithubBotResponse[] = [];
+    let hasNextPage = true;
+    let cursor: string | null = null;
 
-      const listings = response.data?.data?.marketplaceListings?.nodes ?? [];
-      return listings.map((item) => new GithubBotResponse(item));
+    try {
+      while (hasNextPage) {
+        const query = QueryUtil.generateGithubQuery(cursor ?? undefined);
+        const response = await this.httpService.axiosRef.post<{
+          data: {
+            marketplaceListings: {
+              pageInfo: {
+                endCursor: string;
+                hasNextPage: boolean;
+              };
+              edges: { node: GithubAPIResponse }[];
+            };
+          };
+        }>(
+          this.GITHUB_API_URL,
+          { query },
+          {
+            headers: {
+              Authorization: `Bearer ${this.TOKEN}`,
+              'Content-Type': 'application/json',
+              'User-Agent': 'Node.js',
+            },
+          },
+        );
+
+        const listings = response.data?.data?.marketplaceListings?.edges ?? [];
+        const pageInfo = response.data?.data?.marketplaceListings?.pageInfo;
+
+        const botsOnPage = listings
+          .map((edge) => edge.node)
+          .filter((bot) => bot.isVerified) // filtramos verificados
+          .map((data) => new GithubBotResponse(data));
+
+        allBots.push(...botsOnPage);
+
+        hasNextPage = pageInfo?.hasNextPage ?? false;
+        cursor = pageInfo?.endCursor ?? null;
+      }
+
+      return allBots;
     } catch (error) {
       throw new HttpException(
         `Error fetching marketplace listings: ${(error as Error).message}`,
@@ -58,13 +86,14 @@ export class GithubService {
             sourcePlatform: 'github',
           },
         });
+
         if (!existingBot) {
           await this.prisma.bot.create({
             data: {
               name: bot.name,
               description: bot.fullDescription,
               sourcePlatform: 'github',
-              officialWebsite: bot.resourcePath,
+              officialWebsite: bot.appUrl || bot.resourcePath,
               documentationUrl: bot.documentationUrl || null,
               categories: [bot.primaryCategoryName],
               pricingInfo: {

@@ -45,12 +45,14 @@ model Bot {
   categories       String[]           @default([])
   pricingInfo      Json?
   createdAt        DateTime           @default(now())
-  
+
   images           BotImage[]
   links            BotLink[]
   permissions      BotPermission[]
   technicalDetails TechnicalDetails?
   features         Feature[]
+  workflows        Workflow[]         @relation("WorkflowBots") // ← relación many-to-many inversa
+  favoritedBy      FavoriteBot[] 
 }
 
 model BotImage {
@@ -100,20 +102,47 @@ model Feature {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique 
-  password  String   
-  name  String
-  createdAt DateTime @default(now()) 
-  updatedAt DateTime @updatedAt 
-  role      Role    
-  profilePicture String?
+  id              Int        @id @default(autoincrement())
+  email           String     @unique 
+  password        String   
+  name            String
+  createdAt       DateTime   @default(now()) 
+  updatedAt       DateTime   @updatedAt 
+  role            Role    
+  profilePicture  String?
+  workflows       Workflow[] @relation("UserWorkflows") // ← Relación inversa del creator en Workflow
+  favoriteBots    FavoriteBot[] // Relación con bots favoritos
 }
 
 enum Role {
   SUPERUSER
   ADMIN
   USER
+}
+model Workflow {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  useCase     String
+  configJson    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isPublic    Boolean  @default(false)
+  tags        String[] @default([])
+  bots        Bot[]    @relation("WorkflowBots") // ← relación many-to-many sin references
+  creator     User     @relation("UserWorkflows", fields: [creatorId], references: [id]) // ← relación directa
+  creatorId   Int
+}
+
+model FavoriteBot {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  bot       Bot      @relation(fields: [botId], references: [id])
+  botId     String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, botId])
 }
 
 generator nestgraphql {
