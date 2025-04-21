@@ -66,8 +66,10 @@
         <h2 class="sidenav-title">Favoritos</h2>
         <img src="star_filled.svg" alt="Favoritos">
       </li>
-      <li class="sidenav-item" *ngIf="!isCollapsed">
-        <h2 class="sidenav-title">Subir Workflows</h2>
+      <li class="sidenav-item" *ngIf="!isCollapsed" >
+        <h2 class="sidenav-title" onclick="window.location.href='/upload-workflow';">
+          Subir Workflows
+        </h2>        
         <img src="upload.svg" alt="Subir">
       </li>
     </ul>
