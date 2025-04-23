@@ -59,7 +59,7 @@
         <img src="person.svg" alt="Personas">
       </li>
       <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
-        <h2 class="sidenav-title" >Workflows</h2>
+        <h2 class="sidenav-title" onclick="window.location.href='/workflows';">Workflows</h2>
         <img src="share.svg" alt="Compartir">
       </li>
       <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">

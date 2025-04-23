@@ -1,6 +1,13 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Param,
+  Body,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { WorkflowService } from './workflow.service';
-import { Workflow } from '@prisma/client';
 
 @Controller('workflow')
 export class WorkflowController {
@@ -20,7 +27,17 @@ export class WorkflowController {
       botIds?: string[];
       configJson?: any;
     },
-  ): Promise<Workflow> {
+  ) {
     return this.workflowService.createWorkflow(body);
+  }
+
+  @Get()
+  async getAllWorkflows() {
+    return await this.workflowService.getAllWorkflows();
+  }
+
+  @Get(':id')
+  async getWorkflowById(@Param('id') id: string) {
+    return await this.workflowService.getWorkflowById(id);
   }
 }
