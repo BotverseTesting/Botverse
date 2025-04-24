@@ -54,21 +54,29 @@
       </li>
   
       <!-- Versión expandida (iconos + texto) -->
-      <li class="sidenav-item" *ngIf="!isCollapsed">
-        <h2 class="sidenav-title">Perfil</h2>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title" *ngIf="authService.isLoggedIn()" onclick="window.location.href='/perfil';">Perfil</h2>
         <img src="person.svg" alt="Personas">
       </li>
-      <li class="sidenav-item" *ngIf="!isCollapsed">
-        <h2 class="sidenav-title">Workflows</h2>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title" onclick="window.location.href='/workflows';">Workflows</h2>
         <img src="share.svg" alt="Compartir">
       </li>
-      <li class="sidenav-item" *ngIf="!isCollapsed">
-        <h2 class="sidenav-title">Favoritos</h2>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title"  (click)="onShowFavorites()">Favoritos</h2>
         <img src="star_filled.svg" alt="Favoritos">
       </li>
-      <li class="sidenav-item" *ngIf="!isCollapsed">
-        <h2 class="sidenav-title">Subir Workflows</h2>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()" >
+        <h2 class="sidenav-title" onclick="window.location.href='/upload-workflow';">
+          Subir Workflows
+        </h2>        
         <img src="upload.svg" alt="Subir">
+      </li>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title logout-title" (click)="logout()">
+          Cerrar sesión
+        </h2>
+        <img src="logout.svg" alt="Cerrar sesión" class="logout-icon">
       </li>
     </ul>
   </div>

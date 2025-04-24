@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
-import { Security } from 'src/utils/security';
+import { UserService } from '../user/user.service';
+import { Security } from '../utils/security';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
@@ -28,6 +28,7 @@ export class AuthService {
     const payload = {
       email: user.email,
       role: user.role,
+      sub: user.id,
     };
 
     return {

@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import puppeteer from 'puppeteer';
 import { TeamsBotResponse } from 'src/dto/teamsBotResponse';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class TeamsService {

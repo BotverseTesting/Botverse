@@ -18,7 +18,7 @@
     <div *ngIf="filteredBots.length === 0" class="no-results">
       <img src="assets/icons/search-empty.svg" alt="Sin resultados">
       <p>No se encontraron bots</p>
-      <small *ngIf="filterPlatform || searchQuery">
+      <small *ngIf="filterPlatform || searchQuery || showOnlyFavorites">
         Intenta ajustar tus filtros de búsqueda
       </small>
     </div>
@@ -30,6 +30,7 @@
       [selected]="selectedBotId === bot.id"
       (select)="selectBot(bot.id)"
       (toggleFavoriteEvent)="toggleFavorite(bot.id)"
+      [isLoggedIn]="isLoggedIn"
     ></bot-card>
   </ng-container>
 </div>

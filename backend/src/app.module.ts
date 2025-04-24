@@ -8,6 +8,8 @@ import { PrismaService } from './prisma/prisma.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { WorkflowModule } from './workflows/workflow.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     UserModule,
     AuthModule,
+    WorkflowModule,
+    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

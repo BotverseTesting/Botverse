@@ -1,0 +1,121 @@
+  <div class="upload-container">
+    <div class="upload-card">
+      <h2 class="upload-title">Subir Nuevo Workflow</h2>
+
+      <form [formGroup]="workflowForm" (ngSubmit)="onSubmit()" class="upload-form">
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="name">Nombre del Workflow</label>
+          <input 
+            type="text"
+            id="name"
+            formControlName="name"
+            placeholder="Ej: Automatización de tickets"
+            class="form-input"
+          />
+          <div *ngIf="workflowForm.get('name')?.invalid && workflowForm.get('name')?.touched" class="error-message">
+            El nombre es requerido y debe tener al menos 3 caracteres.
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="3"
+            placeholder="Describe qué hace este workflow..."
+            class="form-textarea"
+          ></textarea>
+        </div>
+
+        <!-- Caso de uso -->
+        <div class="form-group">
+          <label for="useCase">Caso de Uso</label>
+          <input
+            type="text"
+            id="useCase"
+            formControlName="useCase"
+            placeholder="Ej: Gestión de tickets de soporte"
+            class="form-input"
+          />
+        </div>
+
+        <!-- Tags y Bots -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tags">Tags (separados por comas)</label>
+            <input
+              type="text"
+              id="tags"
+              formControlName="tags"
+              placeholder="Ej: soporte, automatización, tickets"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="isPublic">Visibilidad</label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="isPublic" formControlName="isPublic" />
+              Público
+            </label>
+          </div>
+        </div>
+
+        <!-- Search de bots -->
+        <div class="form-group">
+          <label for="botSearch">Buscar Bots</label>
+          <app-search-bar (searchChange)="onSearchChange($event)"></app-search-bar>
+        </div>
+
+        <!-- Lista de bots filtrados -->
+        <div class="bots-list">
+          <div
+            *ngFor="let bot of filteredBots"
+            class="bot-card"
+            (click)="selectBot(bot)"
+          >
+            <img *ngIf="bot.image" [src]="bot.image" alt="Bot Logo" />
+            <div class="bot-info">
+              <span class="bot-name">{{ bot.name }}</span>
+              <span class="bot-platform">{{ bot.platform }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bots seleccionados -->
+        <div class="selected-bots" *ngIf="selectedBots.length > 0">
+          <h4>Bots Seleccionados:</h4>
+          <div class="chip" *ngFor="let bot of selectedBots">
+            {{ bot.name }}
+            <button type="button" (click)="removeBot(bot.id)">×</button>
+          </div>
+        </div>
+
+        <!-- Config JSON -->
+        <div class="form-group">
+          <label for="configJson">Configuración JSON (opcional)</label>
+          <textarea
+            id="configJson"
+            formControlName="configJson"
+            rows="5"
+            placeholder='{"key": "value"}'
+            class="form-textarea code-textarea"
+          ></textarea>
+        </div>
+
+        <!-- Botón de submit -->
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isSubmitting || workflowForm.invalid"
+          >
+            {{ isSubmitting ? 'Subiendo...' : 'Subir Workflow' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

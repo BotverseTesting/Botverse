@@ -1,7 +1,8 @@
 <div class="market-layout">
   <app-sidebar 
     [activePlatform]="currentPlatform"
-    (platformSelected)="handlePlatformSelected($event)">
+    (platformSelected)="handlePlatformSelected($event)"
+    (showFavorites)="handleShowFavorites()">
   </app-sidebar>
 
   <div class="market-content">
@@ -15,7 +16,9 @@
     <!-- Grid con ambos filtros -->
     <app-grid-bot 
       [filterPlatform]="currentPlatform"
-      [searchQuery]="searchQuery">
+      [searchQuery]="searchQuery"
+      [showOnlyFavorites]="showOnlyFavorites"
+      [isLoggedIn]="isLoggedIn">
     </app-grid-bot>
   </div>
 </div>

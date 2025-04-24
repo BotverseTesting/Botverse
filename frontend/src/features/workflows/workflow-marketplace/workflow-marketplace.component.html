@@ -1,0 +1,144 @@
+<div class="workflow-marketplace">
+  <!-- Filtros -->
+  <div class="search-container">
+    <div class="search-wrapper">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Buscar workflows..." 
+        [(ngModel)]="searchQuery"
+        (input)="applyFilters()"
+      >
+      <button class="search-button">
+        <img src="search.svg" alt="Buscar" class="search-icon">
+      </button>
+    </div>
+  </div>
+
+  <div class="filters-section">
+    <div class="tags-filter">
+      <div *ngFor="let tag of availableTags; let i = index" 
+           class="tag" 
+           [class.active]="selectedTags.includes(tag)"
+           [style.background]="getTagColor(i)"
+           (click)="toggleTagFilter(tag)">
+        {{tag}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="workflows-grid">
+    <!-- Estados -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando workflows...</p>
+    </div>
+
+    <div *ngIf="error" class="error-state">
+      <img src="assets/icons/error.svg" alt="Error">
+      <p>{{error}}</p>
+      <button (click)="loadWorkflows()">Reintentar</button>
+    </div>
+
+    <div *ngIf="!isLoading && !error && filteredWorkflows.length === 0" class="empty-state">
+      <img src="assets/icons/search-empty.svg" alt="Sin resultados">
+      <p>No se encontraron workflows</p>
+      <small *ngIf="searchQuery || selectedTags.length > 0">
+        Prueba ajustando tus filtros de búsqueda
+      </small>
+    </div>
+
+    <!-- Tarjetas de Workflow -->
+    <div *ngFor="let workflow of filteredWorkflows" class="workflow-card" (click)="openModal(workflow)">
+      <!-- Sección de logos de bots -->
+      <div class="bot-logos">
+        <div class="logos-container">
+          <div *ngFor="let bot of workflow.bots; let last = last" class="bot-logo-item">
+            <img *ngIf="bot.images.length > 0" [src]="bot.images[0].url" [alt]="bot.name">
+            <div *ngIf="!last" class="logo-connector">+</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-content">
+        <div class="card-header">
+          <h3>{{workflow.name}}</h3>
+          <div class="meta-info">
+            <span class="creator">Por {{workflow.creator.name}}</span>
+            <span class="date">{{workflow.createdAt | date:'mediumDate'}}</span>
+          </div>
+        </div>
+
+        <p class="description">{{truncateDescription(workflow.description)}}</p>
+
+        <div class="use-case">
+          <span class="use-case-label">CASO DE USO</span>
+          <span>{{workflow.useCase}}</span>
+        </div>
+
+        <div class="tags-section">
+          <span *ngFor="let tag of workflow.tags; let i = index" class="tag" [style.background]="getTagColor(i)">
+            {{tag}}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de detalles -->
+  <div *ngIf="showModal" class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-button" (click)="closeModal()">&times;</button>
+      
+      <div *ngIf="selectedWorkflow" class="modal-details">
+        <div class="modal-header">
+          <h2>{{selectedWorkflow.name}}</h2>
+          <div class="modal-meta">
+            <span class="creator">Por {{selectedWorkflow.creator.name}}</span>
+            <span class="date">{{selectedWorkflow.createdAt | date:'mediumDate'}}</span>
+          </div>
+        </div>
+
+        <div class="modal-bots">
+          <div class="modal-bots-logos">
+            <div *ngFor="let bot of selectedWorkflow.bots" class="modal-bot-item">
+              <img *ngIf="bot.images.length > 0" [src]="bot.images[0].url" [alt]="bot.name">
+              <h4>{{bot.name}}</h4>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-section">
+          <h3>Descripción completa</h3>
+          <p>{{selectedWorkflow.description}}</p>
+        </div>
+
+        <div class="modal-section">
+          <h3>Caso de uso</h3>
+          <p>{{selectedWorkflow.useCase}}</p>
+        </div>
+
+        <div class="modal-section">
+          <h3>Tags</h3>
+          <div class="modal-tags">
+            <span *ngFor="let tag of selectedWorkflow.tags; let i = index" class="tag" [style.background]="getTagColor(i)">
+              {{tag}}
+            </span>
+          </div>
+        </div>
+
+        <!-- Sección para la configuración JSON -->
+        <div class="modal-section">
+          <h3>Configuración</h3>
+          <div *ngIf="selectedWorkflow.configJson; else noConfig">
+            <pre class="json-code">{{formatObject(selectedWorkflow.configJson)}}</pre>
+          </div>
+          <ng-template #noConfig>
+            <p>No hay configuración JSON disponible para este workflow.</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

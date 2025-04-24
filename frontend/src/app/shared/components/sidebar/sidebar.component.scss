@@ -4,7 +4,7 @@
   left: 0;
   top: 150px;
   height: calc(100vh - 130px);
-  background-color: #f5f5f5; /* Color de fondo suave */
+  background-color: #f5f5f5;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -13,19 +13,81 @@
   transition: width 0.3s ease, background-color 0.3s ease;
   z-index: 100;
   overflow: hidden;
-  border-right: 1px solid #e0e0e0; /* Agregar borde derecho sutil */
+  border-right: 1px solid #e0e0e0;
 
   &:hover {
-    background-color: #e0e0e0; /* Cambio sutil al pasar el mouse */
+    background-color: #e0e0e0;
   }
 
   &.expanded {
-    width: 240px;
+    width: 260px;
+    align-items: flex-start;
+    padding: 25px 15px;
+    background-color: #f8f8f8;
 
-    .sidebar-expandable {
-      width: 300px;
-      opacity: 1;
-      pointer-events: none;
+    .sidenav-nav {
+      width: 100%;
+      
+      .sidenav-item:not(.sidenav-discord) {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        gap: 15px;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+          transform: translateX(5px);
+        }
+
+        h2.sidenav-title {
+          font-size: 1rem;
+          font-weight: 500;
+          color: #333;
+          margin: 0;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: #0066cc;
+          }
+        }
+
+        img {
+          width: 24px;
+          height: 24px;
+          opacity: 0.8;
+          transition: opacity 0.2s ease;
+        }
+
+        &:hover img {
+          opacity: 1;
+        }
+      }
+
+      .logout-title {
+        color: #ff4757;
+        font-weight: 500;
+      }
+
+      .logout-icon {
+        filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      }
+
+      .sidenav-item:hover {
+        .logout-title {
+          color: darken(#ff4757, 10%);
+        }
+        .logout-icon {
+          filter: invert(16%) sepia(99%) saturate(6054%) hue-rotate(358deg) brightness(91%) contrast(112%);
+        }
+      }
     }
   }
 
@@ -33,7 +95,7 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    margin-bottom: 32px; /* Espacio aumentado para mayor respiro */
+    margin-bottom: 32px;
     position: relative;
     z-index: 2;
 
@@ -41,23 +103,23 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      width: 80px;
-      height: 80px;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
-      transition: transform 0.2s ease; /* Efecto de transformación suave */
+      transition: transform 0.2s ease;
       
       img {
-        width: 50px;
-        height: 50px;
+        width: 24px;
+        height: 24px;
         opacity: 0.9;
         transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.2s ease;
 
         &:hover {
           opacity: 1;
-          transform: rotate(360deg); /* Añadir rotación al logo */
+          transform: rotate(360deg);
         }
 
         &.rotated {
@@ -93,7 +155,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px; /* Aumento en el espacio entre los elementos */
+    gap: 16px;
     position: relative;
     z-index: 1;
 
@@ -101,7 +163,7 @@
       width: 100%;
       display: flex;
       justify-content: center;
-      margin-bottom: 30px; /* Espaciado adecuado para íconos */
+      margin-bottom: 30px;
 
       img {
         width: 50px;
@@ -111,7 +173,12 @@
 
         &:hover {
           opacity: 1;
-          transform: translateY(-5px); /* Efecto de elevación */
+          transform: translateY(-5px);
+        }
+
+        &.active {
+          opacity: 1;
+          filter: drop-shadow(0 0 5px rgba(0, 102, 204, 0.5));
         }
       }
     }
@@ -130,7 +197,12 @@
 
         &:hover {
           opacity: 1;
-          transform: translateY(-5px); /* Efecto de elevación para Discord */
+          transform: translateY(-5px);
+        }
+
+        &.active {
+          opacity: 1;
+          filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.6));
         }
       }
     }

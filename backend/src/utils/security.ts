@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import * as bcrypt from 'bcrypt-ts';
 
 export class Security {
