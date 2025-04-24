@@ -42,7 +42,7 @@
     }
 
     .login-btn {
-      background: #e57373;
+      background: #73c1e5;
       color: black;
       font-weight: bold;
       padding: 10px;
@@ -74,6 +74,23 @@
     button img {
       width: 30px;
       height: 30px;
+    }
+  }
+  .register-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #666;
+
+    a {
+      color: #32b492;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      
+      &:hover {
+        text-decoration: underline;
+      }
     }
   }
 }

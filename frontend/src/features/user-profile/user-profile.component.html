@@ -1,0 +1,25 @@
+<div class="profile-container">
+    <div *ngIf="!isLoading; else loading" class="card">
+      <img [src]="user.avatar" alt="avatar" class="avatar" />
+      <h2>{{ user.name }}</h2>
+      <p>{{ user.email }}</p>
+  
+      <div class="stats">
+        <div class="stat">
+          <h3>{{ favoritesCount }}</h3>
+          <p>Bots favoritos</p>
+        </div>
+        <div class="stat">
+          <h3>{{ workflowsCount }}</h3>
+          <p>Workflows creados</p>
+        </div>
+      </div>
+    </div>
+  
+    <ng-template #loading>
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Cargando perfil...</p>
+      </div>
+    </ng-template>
+  </div>

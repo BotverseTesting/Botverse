@@ -55,7 +55,7 @@
   
       <!-- Versión expandida (iconos + texto) -->
       <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
-        <h2 class="sidenav-title" *ngIf="authService.isLoggedIn()">Perfil</h2>
+        <h2 class="sidenav-title" *ngIf="authService.isLoggedIn()" onclick="window.location.href='/perfil';">Perfil</h2>
         <img src="person.svg" alt="Personas">
       </li>
       <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">

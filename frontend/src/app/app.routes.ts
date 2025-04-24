@@ -6,6 +6,8 @@ import { MarketListComponent } from '../features/market-list/market-list.compone
 import { BotDetailsComponent } from './shared/components/bot-details/bot-details/bot-details.component';
 import { UploadWorkflowComponent } from '../features/workflows/upload-workflow/upload-workflow.component';
 import { WorkflowMarketplaceComponent } from '../features/workflows/workflow-marketplace/workflow-marketplace.component';
+import { UserProfileComponent } from '../features/user-profile/user-profile.component';
+import { AuthGuard } from '../features/auth/auth.guard';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
@@ -13,8 +15,10 @@ export const routes: Routes = [
     { path: 'auth/register', component: RegisterComponent }, 
     { path: 'bots', component: MarketListComponent } ,
     { path: 'bots/:id', component: BotDetailsComponent } ,
-    { path: 'upload-workflow', component: UploadWorkflowComponent },
-    { path: 'workflows', component: WorkflowMarketplaceComponent}
+    { path: 'upload-workflow', component: UploadWorkflowComponent, canActivate: [AuthGuard] },
+    { path: 'workflows', component: WorkflowMarketplaceComponent, canActivate: [AuthGuard] },
+    { path: 'perfil', component: UserProfileComponent, canActivate: [AuthGuard] },
+    { path: '**', redirectTo: '/bots' }
     
 ]; 
 
