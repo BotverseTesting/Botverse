@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Security } from 'src/utils/security';
+import { PrismaService } from '../prisma/prisma.service';
+import { Security } from '../utils/security';
 
 @Injectable()
 export class UserService {
@@ -20,7 +20,6 @@ export class UserService {
         password: Security.hashPassword(data.password),
         name: data.name,
         role: data.role,
-        profilePicture: data.profilePicture,
       },
     });
   }
@@ -64,7 +63,6 @@ export class UserService {
       password?: string;
       name?: string;
       role?: 'SUPERUSER' | 'ADMIN' | 'USER';
-      profilePicture?: string;
     },
   ): Promise<User> {
     const user = await this.prisma.user.findUnique({

@@ -109,7 +109,6 @@ model User {
   createdAt       DateTime   @default(now()) 
   updatedAt       DateTime   @updatedAt 
   role            Role    
-  profilePicture  String?
   workflows       Workflow[] @relation("UserWorkflows") // ← Relación inversa del creator en Workflow
   favoriteBots    FavoriteBot[] // Relación con bots favoritos
 }

@@ -28,7 +28,6 @@ export class UserController {
       password: string;
       name: string;
       role: 'SUPERUSER' | 'ADMIN' | 'USER';
-      profilePicture?: string;
     },
   ): Promise<User> {
     return this.userService.createUser(createUserDto);
