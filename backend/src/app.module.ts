@@ -10,9 +10,14 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { WorkflowModule } from './workflows/workflow.module';
 import { FavoritesModule } from './favorites/favorites.module';
+import { LlmModule } from './llm/llm.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
@@ -26,6 +31,7 @@ import { FavoritesModule } from './favorites/favorites.module';
     AuthModule,
     WorkflowModule,
     FavoritesModule,
+    LlmModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
