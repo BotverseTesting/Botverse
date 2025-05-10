@@ -1,0 +1,32 @@
+<!-- FAB button to open chat -->
+<button class="chat-fab" (click)="openModal()">💬</button>
+
+<!-- Modal overlay -->
+<div *ngIf="visible" class="chat-modal-overlay" (click)="closeModal()">
+  <div class="chat-modal" (click)="$event.stopPropagation()">
+    <div class="chat-header">
+      <h3>Asistente de Bots</h3>
+      <button class="close-btn" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="chat-container">
+      <div class="messages">
+        <div *ngFor="let msg of messages" [class]="msg.role">
+          <strong>{{ msg.role === 'user' ? 'Tú' : 'Asistente' }}</strong>:
+          <p>{{ msg.content }}</p>
+        </div>
+        <div *ngIf="loading" class="assistant typing">Escribiendo...</div>
+      </div>
+
+      <form (ngSubmit)="sendMessage()" class="chat-input">
+        <input
+          [(ngModel)]="userInput"
+          name="userInput"
+          placeholder="Escribe tu mensaje..."
+          autocomplete="off"
+        />
+        <button type="submit" [disabled]="loading || !userInput.trim()">Enviar</button>
+      </form>
+    </div>
+  </div>
+</div>

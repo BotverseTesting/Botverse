@@ -8,6 +8,7 @@ import { UploadWorkflowComponent } from '../features/workflows/upload-workflow/u
 import { WorkflowMarketplaceComponent } from '../features/workflows/workflow-marketplace/workflow-marketplace.component';
 import { UserProfileComponent } from '../features/user-profile/user-profile.component';
 import { AuthGuard } from '../features/auth/auth.guard';
+import { LlmChatComponent } from '../features/llm-chat/llm-chat.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
