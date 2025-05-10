@@ -1,19 +1,25 @@
+name: Crear tarjeta en Trello desde issue
+
+on:
+  issues:
+    types: [opened]
+
 jobs:
   create-card:
     runs-on: ubuntu-latest
+    env:
+      TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+      TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+      TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
 
     steps:
-      - name: Debug: Mostrar datos del issue
+      - name: Mostrar información del issue
         run: |
           echo "Título del issue: ${{ github.event.issue.title }}"
           echo "Cuerpo del issue: ${{ github.event.issue.body }}"
           echo "URL del issue: ${{ github.event.issue.html_url }}"
 
       - name: Crear tarjeta en Trello
-        env:
-          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
-          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
         run: |
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
@@ -34,10 +40,3 @@ jobs:
           echo "Estado HTTP de la respuesta de Trello: $STATUS"
           echo "Cuerpo de la respuesta:"
           echo "$BODY"
-
-          if [ "$STATUS" -ne 200 ]; then
-            echo "❌ Error creando la tarjeta en Trello."
-            exit 1
-          fi
-
-          echo "✅ Tarjeta creada correctamente."
