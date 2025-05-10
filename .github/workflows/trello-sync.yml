@@ -3,12 +3,20 @@ name: Sync Issue to Trello
 on:
   issues:
     types: [opened]
+  workflow_dispatch:  # permite ejecutarlo manualmente desde GitHub Actions
 
 jobs:
   create-card:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Create Trello Card
+      - name: Debug: Mostrar datos del issue
+        run: |
+          echo "Título del issue: ${{ github.event.issue.title }}"
+          echo "Cuerpo del issue: ${{ github.event.issue.body }}"
+          echo "URL del issue: ${{ github.event.issue.html_url }}"
+
+      - name: Crear tarjeta en Trello
         env:
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
           TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
@@ -17,10 +25,26 @@ jobs:
           ISSUE_TITLE="${{ github.event.issue.title }}"
           ISSUE_BODY="${{ github.event.issue.body }}"
           ISSUE_URL="${{ github.event.issue.html_url }}"
-          
-          curl -X POST "https://api.trello.com/1/cards" \
+
+          echo "Creando tarjeta en Trello..."
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.trello.com/1/cards" \
             --data-urlencode "name=$ISSUE_TITLE" \
             --data-urlencode "desc=$ISSUE_BODY%0AIssue URL: $ISSUE_URL" \
             --data-urlencode "idList=$TRELLO_LIST_ID" \
             --data-urlencode "key=$TRELLO_API_KEY" \
-            --data-urlencode "token=$TRELLO_API_TOKEN"
+            --data-urlencode "token=$TRELLO_API_TOKEN")
+
+          BODY=$(echo "$RESPONSE" | head -n1)
+          STATUS=$(echo "$RESPONSE" | tail -n1)
+
+          echo "Estado HTTP de la respuesta de Trello: $STATUS"
+          echo "Cuerpo de la respuesta:"
+          echo "$BODY"
+
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ Error creando la tarjeta en Trello."
+            exit 1
+          fi
+
+          echo "✅ Tarjeta creada correctamente."
