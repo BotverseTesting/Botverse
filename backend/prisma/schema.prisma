@@ -12,3 +12,151 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Platform {
+  discord
+  github
+  slack
+  teams
+  microsoft_store
+}
+
+enum LinkType {
+  website
+  documentation
+  support
+  legal
+  social
+}
+
+enum ImageType {
+  logo
+  screenshot
+  banner
+}
+
+model Bot {
+  id               String             @id @default(uuid())
+  name             String             @unique
+  description      String
+  sourcePlatform   Platform
+  officialWebsite  String?
+  documentationUrl String?
+  categories       String[]           @default([])
+  pricingInfo      Json?
+  createdAt        DateTime           @default(now())
+
+  images           BotImage[]
+  links            BotLink[]
+  permissions      BotPermission[]
+  technicalDetails TechnicalDetails?
+  features         Feature[]
+  workflows        Workflow[]         @relation("WorkflowBots") // ← relación many-to-many inversa
+  favoritedBy      FavoriteBot[] 
+}
+
+model BotImage {
+  id     Int       @id @default(autoincrement())
+  url    String
+  type   ImageType?
+  bot    Bot       @relation(fields: [botId], references: [id])
+  botId  String
+}
+
+model BotLink {
+  id      Int      @id @default(autoincrement())
+  text    String
+  url     String
+  type    LinkType?
+  bot     Bot      @relation(fields: [botId], references: [id])
+  botId   String
+}
+
+
+model BotPermission {
+  id          Int    @id @default(autoincrement())
+  scope       String
+  description String
+  bot         Bot    @relation(fields: [botId], references: [id])
+  botId       String
+}
+
+model TechnicalDetails {
+  id             Int     @id @default(autoincrement())
+  resourcePath   String?
+  installationUrl String?
+  externalId     String?
+  isVerified     Boolean?
+  metadata       Json?
+  bot            Bot     @relation(fields: [botId], references: [id])
+  botId          String  @unique
+}
+
+model Feature {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  capabilities String[]
+  bot         Bot      @relation(fields: [botId], references: [id])
+  botId       String
+}
+
+model User {
+  id              Int        @id @default(autoincrement())
+  email           String     @unique 
+  password        String   
+  name            String
+  createdAt       DateTime   @default(now()) 
+  updatedAt       DateTime   @updatedAt 
+  role            Role    
+  workflows       Workflow[] @relation("UserWorkflows") // ← Relación inversa del creator en Workflow
+  favoriteBots    FavoriteBot[] // Relación con bots favoritos
+  chatSessions   ChatSession[]
+}
+
+enum Role {
+  SUPERUSER
+  ADMIN
+  USER
+}
+model Workflow {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  useCase     String
+  configJson    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isPublic    Boolean  @default(false)
+  tags        String[] @default([])
+  bots        Bot[]    @relation("WorkflowBots") // ← relación many-to-many sin references
+  creator     User     @relation("UserWorkflows", fields: [creatorId], references: [id]) // ← relación directa
+  creatorId   Int
+}
+
+model FavoriteBot {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  bot       Bot      @relation(fields: [botId], references: [id])
+  botId     String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, botId])
+}
+model ChatSession {
+  id         String   @id @default(uuid())
+  title      String?
+  model      String   @default("meta-llama/llama-4-maverick:free")
+  messages   Json     // Array de mensajes: [{ role: 'user', content: '...' }]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+}
+
+generator nestgraphql {
+  provider = "prisma-nestjs-graphql"
+  output   = "../src/@generated/prisma-graphql"
+}

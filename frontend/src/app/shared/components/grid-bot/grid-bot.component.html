@@ -1,0 +1,36 @@
+<div class="grid-container">
+  <!-- Estado de carga -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Cargando bots...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="error-state">
+    <img src="assets/icons/error.svg" alt="Error">
+    <p>{{ error }}</p>
+    <button (click)="loadBots()">Reintentar</button>
+  </div>
+
+  <!-- Resultados -->
+  <ng-container *ngIf="!isLoading && !error">
+    <!-- Sin resultados -->
+    <div *ngIf="filteredBots.length === 0" class="no-results">
+      <img src="assets/icons/search-empty.svg" alt="Sin resultados">
+      <p>No se encontraron bots</p>
+      <small *ngIf="filterPlatform || searchQuery || showOnlyFavorites">
+        Intenta ajustar tus filtros de búsqueda
+      </small>
+    </div>
+
+    <!-- Lista de bots -->
+    <bot-card
+      *ngFor="let bot of filteredBots; trackBy: trackByBotId"
+      [card]="bot"
+      [selected]="selectedBotId === bot.id"
+      (select)="selectBot(bot.id)"
+      (toggleFavoriteEvent)="toggleFavorite(bot.id)"
+      [isLoggedIn]="isLoggedIn"
+    ></bot-card>
+  </ng-container>
+</div>

@@ -1,0 +1,82 @@
+<div class="sidenav" [class.expanded]="!isCollapsed">
+    <!-- Botón para colapsar/expandir -->
+    <div class="logo-container">
+      <button class="logo" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <img 
+          src="list.svg" 
+          alt="Menu" 
+          [class.rotated]="!isCollapsed"
+        >
+      </button>
+    </div>
+  
+    <!-- Contenido expandible (opcional) -->
+    <div class="sidebar-expandable">
+      <div class="expandable-content">
+        <ng-content select="[sidebar-content]"></ng-content>
+      </div>
+    </div>
+  
+    <!-- Iconos de plataformas -->
+    <ul class="sidenav-nav">
+      <!-- Versión colapsada (solo iconos) -->
+      <li class="sidenav-discord" *ngIf="isCollapsed">
+        <img 
+          src="discord.svg" 
+          alt="Discord" 
+          [class.active]="activePlatform === 'discord'"
+          (click)="selectPlatform('discord')"
+        >
+      </li>
+      <li class="sidenav-item" *ngIf="isCollapsed">
+        <img 
+          src="github.svg" 
+          alt="GitHub"
+          [class.active]="activePlatform === 'github'"
+          (click)="selectPlatform('github')"
+        >
+      </li>
+      <li class="sidenav-item" *ngIf="isCollapsed">
+        <img 
+          src="slack.svg" 
+          alt="Slack"
+          [class.active]="activePlatform === 'slack'"
+          (click)="selectPlatform('slack')"
+        >
+      </li>
+      <li class="sidenav-item" *ngIf="isCollapsed">
+        <img 
+          src="teams.svg" 
+          alt="Teams"
+          [class.active]="activePlatform === 'teams'"
+          (click)="selectPlatform('teams')"
+        >
+      </li>
+  
+      <!-- Versión expandida (iconos + texto) -->
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title" *ngIf="authService.isLoggedIn()" onclick="window.location.href='/perfil';">Perfil</h2>
+        <img src="person.svg" alt="Personas">
+      </li>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title" onclick="window.location.href='/workflows';">Workflows</h2>
+        <img src="share.svg" alt="Compartir">
+      </li>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title"  (click)="onShowFavorites()">Favoritos</h2>
+        <img src="star_filled.svg" alt="Favoritos">
+      </li>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()" >
+        <h2 class="sidenav-title" onclick="window.location.href='/upload-workflow';">
+          Subir Workflows
+        </h2>        
+        <img src="upload.svg" alt="Subir">
+      </li>
+      <li class="sidenav-item" *ngIf="!isCollapsed && authService.isLoggedIn()">
+        <h2 class="sidenav-title logout-title" (click)="logout()">
+          Cerrar sesión
+        </h2>
+        <img src="logout.svg" alt="Cerrar sesión" class="logout-icon">
+      </li>
+    </ul>
+  </div>

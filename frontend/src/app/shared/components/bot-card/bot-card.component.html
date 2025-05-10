@@ -1,0 +1,39 @@
+<div class="bot-card" *ngIf="card" [class.selected]="selected" (click)="onCardClick()">
+  <div class="card-content" [routerLink]="['/bots', card.id]">
+    <div class="card-header">
+      <div class="avatar">
+        <img *ngIf="card.images" 
+          [src]="card.images" 
+          alt="{{ card.header }} logo"
+          (error)="card.images = ''">
+      </div>
+      <div class="header-text">
+        <h3>{{ card.header }}</h3>
+        <span class="category">{{ card.category }}</span>
+      </div>
+      
+      <button 
+        *ngIf="isLoggedIn"
+        class="favorite-button"
+        (click)="toggleFavorite($event)"
+        [class.favorited]="card.isFavorite"
+        [disabled]="isLoadingFavorite"
+      >
+        <span *ngIf="!isLoadingFavorite">{{ card.isFavorite ? '★' : '☆' }}</span>
+        <span *ngIf="isLoadingFavorite">...</span>
+      </button>
+    </div>
+
+    <div class="labels-container" *ngIf="card.labels?.length">
+      <span class="label" *ngFor="let label of card.labels">
+        {{ label }}
+      </span>
+    </div>
+
+    <div class="platform-icons">
+      <div class="icon">📊</div>
+      <div class="icon">🔗</div>
+      <div class="icon">⚙️</div>
+    </div>
+  </div>
+</div>
