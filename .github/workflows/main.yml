@@ -3,6 +3,7 @@ name: Sync Issue to Trello
 on:
   issues:
     types: [opened]
+  workflow_dispatch:
 
 jobs:
   create-card:
