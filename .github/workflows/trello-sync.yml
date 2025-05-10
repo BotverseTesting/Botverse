@@ -1,22 +1,26 @@
-name: GitHub Commit To Trello Card
+name: Sync Issue to Trello
 
 on:
-  pull_request:
-    types: [opened, synchronize, closed]
+  issues:
+    types: [opened]
 
 jobs:
-  trello:
+  create-card:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
-      - uses: dalezak/github-commit-to-trello-card@main
-        with:
-          trello-api-key: ${{ secrets.TRELLO_KEY }}
-          trello-auth-token: ${{ secrets.TRELLO_TOKEN }}
-          trello-board-id: ${{ secrets.TRELLO_BOARD }}
-          trello-card-action: "Attachment"
-          trello-list-name-commit: "Doing"
-          trello-list-name-pr-open: "Reviewing"
-          trello-list-name-pr-closed: "Done"
+      - name: Create Trello Card
+        env:
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          ISSUE_URL="${{ github.event.issue.html_url }}"
+          
+          curl -X POST "https://api.trello.com/1/cards" \
+            --data-urlencode "name=$ISSUE_TITLE" \
+            --data-urlencode "desc=$ISSUE_BODY%0AIssue URL: $ISSUE_URL" \
+            --data-urlencode "idList=$TRELLO_LIST_ID" \
+            --data-urlencode "key=$TRELLO_API_KEY" \
+            --data-urlencode "token=$TRELLO_API_TOKEN"
