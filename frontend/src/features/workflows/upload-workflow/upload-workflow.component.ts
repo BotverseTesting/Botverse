@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { GraphqlService } from '../../../app/shared/graphql/services/graphql.service';
 import { CommonModule } from '@angular/common';
 import { SearchBarComponent } from '../../../app/shared/components/search-bar/search-bar.component';
+import { LlmService } from '../../llm-chat/llm.service';
+
 
 interface Bot {
   id: string;
@@ -21,7 +23,6 @@ interface Bot {
     ReactiveFormsModule,
     FormsModule,
     SearchBarComponent,
-    
   ],
   templateUrl: './upload-workflow.component.html',
   styleUrls: ['./upload-workflow.component.scss'],
@@ -32,12 +33,15 @@ export class UploadWorkflowComponent implements OnInit {
   allBots: Bot[] = [];
   filteredBots: Bot[] = [];
   selectedBots: Bot[] = [];
+  goalInput = '';
+  recommending = false;
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
     private router: Router,
-    private graphqlService: GraphqlService
+    private graphqlService: GraphqlService,
+    private llmService: LlmService
   ) {
     this.workflowForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -92,6 +96,35 @@ export class UploadWorkflowComponent implements OnInit {
     this.onSearchChange('');
   }
 
+  generateWithLlm(): void {
+    if (!this.goalInput.trim()) return;
+    this.recommending = true;
+    const userId = 1;
+
+    this.llmService.recommendWorkflow(userId, this.goalInput).subscribe({
+      next: (res: any) => {
+        const wf = res.workflow;
+        if (!wf) return;
+
+        this.workflowForm.patchValue({
+          name: wf.name,
+          description: wf.description,
+          useCase: this.goalInput,
+          tags: wf.tags.join(', '),
+          configJson: JSON.stringify(wf.configJson, null, 2),
+          botIds: wf.bots.map((b: any) => b.id),
+        });
+
+        this.selectedBots = wf.bots;
+        this.recommending = false;
+      },
+      error: () => {
+        console.error('Error generando workflow:');
+        this.recommending = false;
+      },
+    });
+  }
+
   onSubmit() {
     if (this.workflowForm.valid) {
       this.isSubmitting = true;
@@ -101,7 +134,6 @@ export class UploadWorkflowComponent implements OnInit {
         configJsonParsed = this.workflowForm.value.configJson
           ? JSON.parse(this.workflowForm.value.configJson)
           : null;
-          this.router.navigate(['/bots']);
       } catch (e) {
         alert('El campo Configuración JSON no contiene un JSON válido.');
         this.isSubmitting = false;

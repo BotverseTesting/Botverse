@@ -179,6 +179,7 @@ export class LlmService {
       take: 500,
       orderBy: { createdAt: 'desc' },
       select: {
+        id: true,
         name: true,
         description: true,
         sourcePlatform: true,
@@ -195,18 +196,88 @@ export class LlmService {
     const messages = [
       {
         role: 'system',
-        content:
-          'Eres un experto en diseño de workflows. El usuario tiene acceso a los siguientes bots:',
+        content: 'Eres un experto en diseño de workflows para bots.',
       },
       {
         role: 'user',
-        content: `Objetivo del usuario: "${goal}".\n\nDado este objetivo y los bots disponibles:\n\n${botList}\n\nDiseña un workflow paso a paso usando estos bots. Explica por qué eliges cada uno.`,
+        content: `Objetivo del usuario: "${goal}".\n\nTienes acceso a los siguientes bots (no puedes utilizar otros):\n\n${botList}
+  
+  ⚠️ Solo puedes proponer bots que aparezcan en esta lista. No inventes nombres, ni utilices bots que no se encuentren en la lista.
+  
+  Genera un objeto JSON **válido y completo** con los siguientes campos obligatorios:
+  
+  - name: nombre del workflow.
+  - description: una descripción extensa que incluya una guía paso a paso para instalar, configurar y usar correctamente cada bot del workflow. Incluye también qué problema resuelve cada uno.
+  - tags: array de etiquetas relacionadas.
+  - botIds: array de strings con los **nombres exactos** de los bots utilizados.
+  - configJson: objeto con la configuración detallada de cada bot.
+  
+  Devuelve **únicamente** el JSON válido. Sin texto adicional.`,
       },
     ];
 
     const response = await this.chat(messages);
-    const assistantReply = response.choices[0].message.content;
+    let assistantReply = response.choices?.[0]?.message?.content;
 
-    return { goal, recommendedWorkflow: assistantReply };
+    console.log('[RAW LLM Response]', assistantReply);
+
+    if (!assistantReply) {
+      return {
+        goal,
+        error: 'La respuesta del modelo es inválida o vacía.',
+      };
+    }
+
+    assistantReply = assistantReply
+      .replace(/^```json\n?/i, '')
+      .replace(/```$/, '')
+      .trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(assistantReply);
+      console.log('[Parsed Workflow JSON]', parsed);
+    } catch (err) {
+      console.error('[Error parsing LLM response as JSON]', err);
+      return {
+        goal,
+        error: 'No se pudo interpretar el workflow como JSON válido.',
+        raw: assistantReply,
+      };
+    }
+
+    const botNameToId = new Map(bots.map((bot) => [bot.name, bot.id]));
+    const botIds: string[] = [];
+
+    for (const botName of parsed.botIds || []) {
+      const botId = botNameToId.get(botName);
+      if (botId) botIds.push(botId);
+    }
+
+    const createdWorkflow = await this.prisma.workflow.create({
+      data: {
+        name: parsed.name,
+        description: parsed.description,
+        useCase: goal,
+        tags: parsed.tags || [],
+        configJson: parsed.configJson ?? {},
+        isPublic: true,
+        creator: {
+          connect: { id: userId },
+        },
+        bots: {
+          connect: botIds.map((id) => ({ id })),
+        },
+      },
+      include: {
+        creator: true,
+        bots: true,
+      },
+    });
+
+    return {
+      message: 'Workflow creado correctamente.',
+      workflow: createdWorkflow,
+    };
   }
 }

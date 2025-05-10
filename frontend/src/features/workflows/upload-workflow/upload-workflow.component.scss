@@ -179,3 +179,37 @@
     background-color: #0056b3;
   }
 }
+.ai-generator {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+
+  input {
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .ai-button {
+    align-self: flex-start;
+    padding: 0.6rem 1.2rem;
+    background-color: #10b981;
+    color: white;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    transition: background 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #059669;
+    }
+
+    &:disabled {
+      background-color: #a7f3d0;
+      cursor: not-allowed;
+    }
+  }
+}

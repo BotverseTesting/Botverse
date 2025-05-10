@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 import { SearchBarComponent } from '../../app/shared/components/search-bar/search-bar.component';
 import { CommonModule } from '@angular/common';
@@ -6,6 +6,7 @@ import { SidebarComponent } from '../../app/shared/components/sidebar/sidebar.co
 import { ChipsComponent } from '../../app/shared/components/chips/chips.component';
 import { GridBotComponent } from "../../app/shared/components/grid-bot/grid-bot.component";
 import { AuthService } from '../auth/auth.service';
+import { LlmChatComponent } from '../llm-chat/llm-chat.component';
 
 @Component({
   selector: 'market-list',
@@ -17,7 +18,8 @@ import { AuthService } from '../auth/auth.service';
     CommonModule, 
     SidebarComponent, 
     ChipsComponent, 
-    GridBotComponent
+    GridBotComponent,
+    LlmChatComponent
   ],
 })
 export class MarketListComponent {
@@ -29,6 +31,7 @@ export class MarketListComponent {
   constructor(private authService: AuthService) {
     this.checkAuthStatus();
   }
+  @ViewChild(LlmChatComponent) chatComponent!: LlmChatComponent;
 
   checkAuthStatus(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
@@ -49,4 +52,9 @@ export class MarketListComponent {
       this.currentPlatform = null;
     }
   }
+  openChatModal() {
+    this.chatComponent?.openModal(); // Método que ya tienes en LlmChatComponent
+  }
+  
+  
 }
