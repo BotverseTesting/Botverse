@@ -1,42 +1,21 @@
-name: Crear tarjeta en Trello desde issue
+name: Create Trello card on opened issues
 
 on:
   issues:
     types: [opened]
 
 jobs:
-  create-card:
+  create_trello_card_job:
     runs-on: ubuntu-latest
-    env:
-      TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
-      TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
-      TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
-
+    name: Create Trello Card
     steps:
-      - name: Mostrar información del issue
-        run: |
-          echo "Título del issue: ${{ github.event.issue.title }}"
-          echo "Cuerpo del issue: ${{ github.event.issue.body }}"
-          echo "URL del issue: ${{ github.event.issue.html_url }}"
-
-      - name: Crear tarjeta en Trello
-        run: |
-          ISSUE_TITLE="${{ github.event.issue.title }}"
-          ISSUE_BODY="${{ github.event.issue.body }}"
-          ISSUE_URL="${{ github.event.issue.html_url }}"
-
-          echo "Creando tarjeta en Trello..."
-
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.trello.com/1/cards" \
-            --data-urlencode "name=$ISSUE_TITLE" \
-            --data-urlencode "desc=$ISSUE_BODY%0AIssue URL: $ISSUE_URL" \
-            --data-urlencode "idList=$TRELLO_LIST_ID" \
-            --data-urlencode "key=$TRELLO_API_KEY" \
-            --data-urlencode "token=$TRELLO_API_TOKEN")
-
-          BODY=$(echo "$RESPONSE" | head -n1)
-          STATUS=$(echo "$RESPONSE" | tail -n1)
-
-          echo "Estado HTTP de la respuesta de Trello: $STATUS"
-          echo "Cuerpo de la respuesta:"
-          echo "$BODY"
+      - name: Call trello-github-actions
+        uses: Yleisradio/github-action-trello-integration@v1.1.0
+        with:
+          action: issue_opened_create_card
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+          TRELLO_BOARD_ID: 681f745a99f837a3cd55f56f     
+          TRELLO_LIST_ID: 681f771a8004cdb18cd07722     
