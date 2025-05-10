@@ -8,30 +8,33 @@ jobs:
   move_card_to_doing:
     runs-on: ubuntu-latest
     steps:
-      - name: Find and move Trello card
+      - name: Move card in Trello from To Do to Doing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
           TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
           TRELLO_BOARD_ID: 681f745a99f837a3cd55f56f
-          TRELLO_TARGET_LIST_ID: 681f8119a7693847221bc67b
+          TRELLO_TARGET_LIST_ID: 681f8119a7693847221bc67b   # Doing
         run: |
           ISSUE_URL="${{ github.event.issue.html_url }}"
+          echo "🔎 Buscando tarjeta con adjunto: $ISSUE_URL"
 
-          echo "Buscando tarjeta con adjunto: $ISSUE_URL"
+          # Obtener todas las tarjetas con attachments
+          CARDS=$(curl -s "https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards?attachments=true&key=$TRELLO_API_KEY&token=$TRELLO_API_TOKEN")
 
-          CARDS=$(curl -s "https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards?key=$TRELLO_API_KEY&token=$TRELLO_API_TOKEN")
-
-          CARD_ID=$(echo "$CARDS" | jq -r --arg ISSUE_URL "$ISSUE_URL" '.[] | select(.attachments[].url == $ISSUE_URL) | .id' | head -n1)
+          # Buscar la tarjeta que tenga como attachment la URL del issue
+          CARD_ID=$(echo "$CARDS" | jq -r --arg ISSUE_URL "$ISSUE_URL" \
+            '.[] | select(.attachments != null and (.attachments[]?.url == $ISSUE_URL)) | .id' | head -n1)
 
           if [ -z "$CARD_ID" ]; then
             echo "❌ No se encontró ninguna tarjeta con el issue adjunto."
             exit 1
           fi
 
-          echo "✔️ Tarjeta encontrada: $CARD_ID. Moviendo a 'Doing'..."
+          echo "✅ Tarjeta encontrada: $CARD_ID. Moviendo a 'Doing'..."
 
           curl -s -X PUT \
-            "https://api.trello.com/1/cards/$CARD_ID?idList=$TRELLO_TARGET_LIST_ID&key=$TRELLO_API_KEY&token=$TRELLO_API_TOKEN"
+            "https://api.trello.com/1/cards/$CARD_ID?idList=$TRELLO_TARGET_LIST_ID&key=$TRELLO_API_KEY&token=$TRELLO_API_TOKEN" \
+            > /dev/null
 
-          echo "✅ Tarjeta movida con éxito."
+          echo "🏁 Tarjeta movida a 'Doing' con éxito."
