@@ -1,14 +1,3 @@
-name: Sync Issue to Trello
-
-on:
-  issues:
-    types: [opened]
-  workflow_dispatch:
-
-jobs:
-  create-card:
-    runs-on: ubuntu-latest
-    steps:
       - name: Create Trello Card
         env:
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
@@ -19,9 +8,21 @@ jobs:
           ISSUE_BODY="${{ github.event.issue.body }}"
           ISSUE_URL="${{ github.event.issue.html_url }}"
           
-          curl -X POST "https://api.trello.com/1/cards" \
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "https://api.trello.com/1/cards" \
             --data-urlencode "name=$ISSUE_TITLE" \
             --data-urlencode "desc=$ISSUE_BODY%0AIssue URL: $ISSUE_URL" \
             --data-urlencode "idList=$TRELLO_LIST_ID" \
             --data-urlencode "key=$TRELLO_API_KEY" \
-            --data-urlencode "token=$TRELLO_API_TOKEN"
+            --data-urlencode "token=$TRELLO_API_TOKEN")
+
+          BODY=$(echo "$RESPONSE" | head -n1)
+          STATUS=$(echo "$RESPONSE" | tail -n1)
+
+          echo "Trello API response status: $STATUS"
+          echo "Response body:"
+          echo "$BODY"
+
+          if [ "$STATUS" -ne 200 ]; then
+            echo "❌ Failed to create Trello card"
+            exit 1
+          fi
