@@ -1,0 +1,59 @@
+name: Move Trello cards during issue/PR lifecycle
+
+on:
+  issues:
+    types: [assigned]
+
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches:
+      - master
+
+jobs:
+  move_to_doing:
+    if: github.event_name == 'issues' && github.event.action == 'assigned'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move card to Doing
+        uses: Yleisradio/github-action-trello-integration@v1.1.0
+        with:
+          action: issue_assigned_move_card
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+          TRELLO_BOARD_ID: 681f745a99f837a3cd55f56f
+          TRELLO_SOURCE_LIST_ID: 681f771a8004cdb18cd07722    # "To Do"
+          TRELLO_TARGET_LIST_ID: 681f8119a7693847221bc67b    # "Doing"
+
+  move_to_reviewing:
+    if: github.event_name == 'pull_request' && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move card to Reviewing
+        uses: Yleisradio/github-action-trello-integration@v1.1.0
+        with:
+          action: pull_request_event_move_card
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+          TRELLO_BOARD_ID: 681f745a99f837a3cd55f56f
+          TRELLO_SOURCE_LIST_ID: 681f8119a7693847221bc67b    # "Doing"
+          TRELLO_TARGET_LIST_ID: 681f779a34f252719cb4b205    # "Reviewing"
+
+  move_to_testing:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Move card to Testing
+        uses: Yleisradio/github-action-trello-integration@v1.1.0
+        with:
+          action: pull_request_event_move_card
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
+          TRELLO_BOARD_ID: 681f745a99f837a3cd55f56f
+          TRELLO_SOURCE_LIST_ID: 681f779a34f252719cb4b205    # "Reviewing"
+          TRELLO_TARGET_LIST_ID: 681f8125304ae55c7f65ae1d    # "Testing"
