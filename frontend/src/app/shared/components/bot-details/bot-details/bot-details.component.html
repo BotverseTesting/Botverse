@@ -1,0 +1,70 @@
+<div class="wrapper">
+  <!-- Mostrar mensaje de carga -->
+  <div *ngIf="isLoading" class="loading">Cargando detalles del bot...</div>
+  
+  <!-- Mostrar mensaje de error si existe -->
+  <div *ngIf="error" class="error">{{ error }}</div>
+  
+  <!-- Mostrar contenido cuando hay datos -->
+  <div *ngIf="bot" class="card">
+    <!-- Encabezado -->
+    <div class="card-header">
+      <div class="title">{{ bot.name }}</div>
+      <div class="links">
+        <div *ngIf="bot.officialWebsite" class="link-primary">
+          <span class="dot"></span>
+          <a [href]="'https://github.com' + bot.officialWebsite" target="_blank" class="truncate">
+            {{ bot.officialWebsite }}
+          </a>
+        </div>
+        <div *ngIf="bot.documentationUrl" class="link-secondary">
+          <a [href]="bot.documentationUrl" target="_blank" class="truncate">
+            {{ bot.documentationUrl }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="card-content">
+      <!-- Mostrar la primera imagen del bot si existe -->
+      <img *ngIf="bot.images && bot.images.length > 0" 
+           class="content-image" 
+           [src]="bot.images[0].url" 
+           [alt]="bot.name" 
+           onerror="this.src='https://placehold.co/197x172?text=No+Image'"/>
+           
+      <div class="content-text">
+        <div class="description-title">Descripción detallada</div>
+        <div class="description-content" [innerHTML]="bot.description "></div>
+        
+        <!-- Mostrar categorías como tags -->
+        <div *ngIf="bot.categories && bot.categories.length > 0" class="tags">
+          <div *ngFor="let category of bot.categories" class="tag purple">{{ category }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de detalles técnicos -->
+    <div class="card-footer">
+      <div class="footer-title">Información técnica</div>
+      <div class="footer-grid">
+        <div class="footer-item">
+          <span class="footer-label">Plataforma:</span>
+          <span class="footer-value">{{ bot.sourcePlatform | titlecase }}</span>
+        </div>
+        <div class="footer-item" *ngIf="bot.technicalDetails?.isVerified !== undefined">
+          <span class="footer-label">Verificado:</span>
+          <span class="footer-value">{{ bot.technicalDetails?.isVerified ? 'Sí' : 'No' }}</span>
+        </div>
+        <div class="footer-item">
+          <span class="footer-label">Categorías:</span>
+          <span class="footer-value">{{ bot.categories?.join(', ') }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-sidebar></app-sidebar>
+<app-search-bar></app-search-bar>

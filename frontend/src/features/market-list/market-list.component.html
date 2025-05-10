@@ -1,0 +1,27 @@
+<div class="market-layout">
+  <app-sidebar 
+    [activePlatform]="currentPlatform"
+    (platformSelected)="handlePlatformSelected($event)"
+    (showFavorites)="handleShowFavorites()">
+  </app-sidebar>
+
+  <div class="market-content">
+    <!-- Search Bar con output -->
+    <app-search-bar 
+      (searchChange)="handleSearchChange($event)">
+    </app-search-bar>
+    
+    <app-chips></app-chips>
+    
+    <!-- Grid con ambos filtros -->
+    <app-grid-bot 
+      [filterPlatform]="currentPlatform"
+      [searchQuery]="searchQuery"
+      [showOnlyFavorites]="showOnlyFavorites"
+      [isLoggedIn]="isLoggedIn">
+    </app-grid-bot>
+  </div>
+</div>
+
+<!-- Chat Modal -->
+<app-llm-chat #chat></app-llm-chat>

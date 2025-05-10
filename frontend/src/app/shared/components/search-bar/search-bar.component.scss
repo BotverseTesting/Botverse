@@ -1,0 +1,132 @@
+.search-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center; // Centramos el contenido
+  align-items: center;
+  padding: 16px;
+  background-color: #f5f5f5;
+  z-index: 1000;
+  box-sizing: border-box; // Asegura que el padding no afecte el ancho
+}
+
+.search-wrapper {
+  position: relative;
+  width: 70%;
+  max-width: 800px;
+  margin-right: auto; // Empuja el icono de usuario a la derecha
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 50px 12px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 30px;
+  outline: none;
+  background-color: #b4bfd0;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+  }
+}
+
+.search-button {
+  position: absolute;
+  right: 20px; // Ajustado para mejor posicionamiento
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .search-icon {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) saturate(100%);
+  }
+}
+
+/* Estilos para el icono de usuario */
+.user-icon {
+  position: absolute; // Cambiado a absolute para mejor control
+  right: 30px; // Posición desde el borde derecho
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+    
+    .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #333;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    z-index: 1001;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      right: 10px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent #333 transparent;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .search-wrapper {
+    width: 60%; // Más espacio para el icono en móviles
+  }
+  
+  .user-icon {
+    right: 20px;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .search-input {
+    padding: 10px 45px 10px 15px;
+  }
+  
+  .search-button {
+    right: 15px;
+  }
+}

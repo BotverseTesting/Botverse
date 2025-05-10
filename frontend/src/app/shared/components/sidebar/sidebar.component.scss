@@ -1,0 +1,210 @@
+.sidenav {
+  width: 80px;
+  position: fixed;
+  left: 0;
+  top: 150px;
+  height: calc(100vh - 130px);
+  background-color: #f5f5f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  box-sizing: border-box;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  z-index: 100;
+  overflow: hidden;
+  border-right: 1px solid #e0e0e0;
+
+  &:hover {
+    background-color: #e0e0e0;
+  }
+
+  &.expanded {
+    width: 260px;
+    align-items: flex-start;
+    padding: 25px 15px;
+    background-color: #f8f8f8;
+
+    .sidenav-nav {
+      width: 100%;
+      
+      .sidenav-item:not(.sidenav-discord) {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        gap: 15px;
+
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+          transform: translateX(5px);
+        }
+
+        h2.sidenav-title {
+          font-size: 1rem;
+          font-weight: 500;
+          color: #333;
+          margin: 0;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: #0066cc;
+          }
+        }
+
+        img {
+          width: 24px;
+          height: 24px;
+          opacity: 0.8;
+          transition: opacity 0.2s ease;
+        }
+
+        &:hover img {
+          opacity: 1;
+        }
+      }
+
+      .logout-title {
+        color: #ff4757;
+        font-weight: 500;
+      }
+
+      .logout-icon {
+        filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+      }
+
+      .sidenav-item:hover {
+        .logout-title {
+          color: darken(#ff4757, 10%);
+        }
+        .logout-icon {
+          filter: invert(16%) sepia(99%) saturate(6054%) hue-rotate(358deg) brightness(91%) contrast(112%);
+        }
+      }
+    }
+  }
+
+  .logo-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 2;
+
+    .logo {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: transform 0.2s ease;
+      
+      img {
+        width: 24px;
+        height: 24px;
+        opacity: 0.9;
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.2s ease;
+
+        &:hover {
+          opacity: 1;
+          transform: rotate(360deg);
+        }
+
+        &.rotated {
+          transform: rotate(90deg);
+        }
+      }
+    }
+  }
+
+  .sidebar-expandable {
+    position: absolute;
+    left: 0px;
+    top: 0;
+    width: 0;
+    height: 100%;
+    background-color: #A2A2A2;
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 1;
+
+    .expandable-content {
+      padding: 20px;
+      color: white;
+      width: 160px;
+    }
+  }
+
+  .sidenav-nav {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+
+    .sidenav-item {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+
+      img {
+        width: 50px;
+        height: 50px;
+        opacity: 0.7;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+
+        &:hover {
+          opacity: 1;
+          transform: translateY(-5px);
+        }
+
+        &.active {
+          opacity: 1;
+          filter: drop-shadow(0 0 5px rgba(0, 102, 204, 0.5));
+        }
+      }
+    }
+
+    .sidenav-discord {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+
+      img {
+        width: 60px;
+        height: 60px;
+        opacity: 0.7;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+
+        &:hover {
+          opacity: 1;
+          transform: translateY(-5px);
+        }
+
+        &.active {
+          opacity: 1;
+          filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.6));
+        }
+      }
+    }
+  }
+}
