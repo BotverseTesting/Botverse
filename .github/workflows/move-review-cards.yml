@@ -1,24 +1,50 @@
-name: Move Trello Card to "Reviewing" on PR opened or updated
+name: Move Trello card to "Reviewing" on PR open or update
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - master  # <-- tu rama por defecto
+      - master
 
 jobs:
-  move_card_when_pull_request_opens:
+  move_card_to_reviewing:
     runs-on: ubuntu-latest
-    name: Move Trello Card to "Reviewing" when PR refers to an issue
     steps:
-      - name: Call trello-github-actions
-        uses: Yleisradio/github-action-trello-integration@v1.1.0
-        with:
-          action: pull_request_event_move_card
+      - name: Move card in Trello from Doing to Reviewing
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
           TRELLO_API_TOKEN: ${{ secrets.TRELLO_API_TOKEN }}
           TRELLO_BOARD_ID: 681f745a99f837a3cd55f56f
-          TRELLO_SOURCE_LIST_ID: 681f8119a7693847221bc67b    # "Doing"
-          TRELLO_TARGET_LIST_ID: 681f779a34f252719cb4b205    # "Reviewing"
+          TRELLO_SOURCE_LIST_ID: 681f8119a7693847221bc67b    # Doing
+          TRELLO_TARGET_LIST_ID: 681f779a34f252719cb4b205    # Reviewing
+        run: |
+          BODY="${{ github.event.pull_request.body }}"
+          echo "📋 Descripción del PR:"
+          echo "$BODY"
+
+          MOVED=0
+          for ISSUE_NUMBER in $(echo "$BODY" | grep -oE '#[0-9]+' | tr -d '#'); do
+            ISSUE_URL="https://github.com/${{ github.repository }}/issues/$ISSUE_NUMBER"
+            echo "🔎 Buscando tarjeta con adjunto: $ISSUE_URL"
+
+            CARDS=$(curl -s "https://api.trello.com/1/boards/$TRELLO_BOARD_ID/cards?attachments=true&key=$TRELLO_API_KEY&token=$TRELLO_API_TOKEN")
+
+            CARD_ID=$(echo "$CARDS" | jq -r --arg ISSUE_URL "$ISSUE_URL" \
+              '.[] | select(.idList == env.TRELLO_SOURCE_LIST_ID) | select(.attachments != null and (.attachments[]?.url == $ISSUE_URL)) | .id' | head -n1)
+
+            if [ -n "$CARD_ID" ]; then
+              echo "✅ Tarjeta encontrada: $CARD_ID. Moviendo a 'Reviewing'..."
+              curl -s -X PUT \
+                "https://api.trello.com/1/cards/$CARD_ID?idList=$TRELLO_TARGET_LIST_ID&key=$TRELLO_API_KEY&token=$TRELLO_API_TOKEN" > /dev/null
+              echo "🏁 Tarjeta movida con éxito."
+              MOVED=1
+            else
+              echo "⚠️ No se encontró tarjeta con ese adjunto en la lista 'Doing'."
+            fi
+          done
+
+          if [ "$MOVED" -eq 0 ]; then
+            echo "❌ No se movió ninguna tarjeta."
+            exit 1
+          fi
